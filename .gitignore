@@ -23,6 +23,9 @@
 hs_err_pid*
 replay_pid*
 
+# Composer dependencies
+vendor/
+
 node_modules/
 
 Web/nbuyit-client/eslint.config.js
