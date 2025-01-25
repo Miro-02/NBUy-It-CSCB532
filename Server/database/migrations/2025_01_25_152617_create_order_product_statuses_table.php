@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
 
-        Schema::create('order_product_status', function (Blueprint $table) {
+        Schema::create('order_product_statuses', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
             $table->string('slug')->unique();
             $table->timestamps();
         });
-        DB::table('order_product_status')->insert([
+        DB::table('order_product_statuses')->insert([
             ['name' => 'Pending', 'slug' => 'pending'],
             ['name' => 'Confirmed', 'slug' => 'confirmed'],
             ['name' => 'Processing', 'slug' => 'processing'],
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_product_status');
+        Schema::dropIfExists('order_product_statuses');
     }
 };
