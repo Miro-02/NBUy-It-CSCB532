@@ -7,7 +7,7 @@ function LoginButton() {
         return (
             <div>
                 <button onClick={() => loginWithRedirect()}>
-                    Log In
+                    Log In / Sign Up
                 </button>
             </div>
         );
