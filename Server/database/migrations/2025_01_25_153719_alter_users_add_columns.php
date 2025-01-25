@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('phone');
             $table->boolean('is_banned')->default(false);
-            $table->unsignedBigInteger('cart_id')->nullable();
-            $table->integer('age');
+            $table->foreignId('cart_id')->nullable()->constrained('carts')->onDelete('set null');
+            $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
+            $table->unsignedInteger('age');
             $table->string('address');
         });
     }
