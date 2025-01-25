@@ -26,5 +26,5 @@ replay_pid*
 node_modules/
 
 Web/nbuyit-client/eslint.config.js
-
 Web/nbuyit-client/tsconfig.app.json
+Web/nbuyit-client/package-lock.json
