@@ -18,6 +18,7 @@ class ProductCategoryController extends Controller
 
     public function index()
     {
+        dump("here");
         $categories = $this->productCategoryService->getAll();
         return ProductCategoryResource::collection($categories);
     }
