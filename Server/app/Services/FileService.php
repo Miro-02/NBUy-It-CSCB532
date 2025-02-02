@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\File;
+use App\Models\FileRecord;
 
 class FileService
 {
     public function storeFile($path, $originalName)
     {
-        return File::create([
+        return FileRecord::create([
             'path' => $path,
             'original_name' => $originalName,
         ]);
@@ -16,6 +16,6 @@ class FileService
 
     public function getFile($id)
     {
-        return File::findOrFail($id);
+        return FileRecord::findOrFail($id);
     }
 }

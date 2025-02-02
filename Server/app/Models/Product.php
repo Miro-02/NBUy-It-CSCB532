@@ -29,7 +29,7 @@ class Product extends Model
     }
 
     public function productImages(){
-        return $this->belongsToMany(File::class, 'products_images', 'product_id', 'image_id');
+        return $this->belongsToMany(FileRecord::class, 'products_images', 'product_id', 'image_id');
     }
 
 }

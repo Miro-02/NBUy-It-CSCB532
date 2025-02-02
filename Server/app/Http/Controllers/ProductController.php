@@ -7,6 +7,10 @@ use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use App\Models\FileRecord;
+use File;
 
 class ProductController extends Controller
 {
@@ -19,19 +23,33 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = $this->productService->getAllProducts()->load('productCategories'); 
+        $products = $this->productService->getAllProducts()->load('productCategories');
         return ProductResource::collection($products);
     }
 
     public function store(ProductRequest $request)
     {
-        $data = $request->validated();
+        $data = $request->all();
         $product = $this->productService->createProduct($data);
         if (isset($data['product_category_ids'])) {
             $product->productCategories()->sync($data['product_category_ids']);
         }
-        if(isset($data['product_images'])){
-            
+        if (isset($data['product_images'])) {
+            $images = $data['product_images'];
+            foreach ($images as $image) {
+                $directory = public_path('files/product_images/');
+                
+                $fileName = uniqid(mt_rand(), true) . '.' . $image->getClientOriginalExtension();
+    
+                $image->move($directory, $fileName);
+    
+                $fileRecord = FileRecord::create([
+                    'path' => $directory . $fileName,
+                    'original_name' => $image->getClientOriginalName(),
+                ]);
+    
+                $product->productImages()->attach($fileRecord->id);
+            }
         }
         return new ProductResource($product);
     }
