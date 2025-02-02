@@ -12,6 +12,7 @@ import NotFound from './pages/NotFound';
 import ProductDetails from './pages/ProductDetails';
 import { useEffect } from 'react';
 import ScrollToTop from './components/ScrollToTop';
+import BecomeSeller from './pages/BecomeSeller';
 
 function App() {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -49,6 +50,10 @@ function App() {
           <Route
           path='/products/add'
           element={isAuthenticated ? <AddProduct /> : <Navigate to='/login' />}
+          />
+          <Route
+          path='/become-seller'
+          element={isAuthenticated ? <BecomeSeller /> : <Navigate to='/login' />}
           />
           <Route path='*' element={<NotFound />} />
         </Routes>
