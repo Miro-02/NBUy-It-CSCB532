@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProductRequest;
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Services\ProductService;
@@ -27,29 +28,27 @@ class ProductController extends Controller
         return ProductResource::collection($products);
     }
 
-    public function store(ProductRequest $request)
+    public function store(StoreProductRequest $request)
     {
-        $data = $request->all();
+        $data = $request->validated();
         $product = $this->productService->createProduct($data);
         if (isset($data['product_category_ids'])) {
             $product->productCategories()->sync($data['product_category_ids']);
         }
-        if (isset($data['product_images'])) {
-            $images = $data['product_images'];
-            foreach ($images as $image) {
-                $directory = public_path('files/product_images/');
-                
-                $fileName = uniqid(mt_rand(), true) . '.' . $image->getClientOriginalExtension();
-    
-                $image->move($directory, $fileName);
-    
-                $fileRecord = FileRecord::create([
-                    'path' => $directory . $fileName,
-                    'original_name' => $image->getClientOriginalName(),
-                ]);
-    
-                $product->productImages()->attach($fileRecord->id);
-            }
+        $images = $data['product_images'];
+        foreach ($images as $image) {
+            $directory = 'files/product_images/';
+
+            $fileName = uniqid(mt_rand(), true) . '.' . $image->getClientOriginalExtension();
+
+            $image->move($directory, $fileName);
+
+            $fileRecord = FileRecord::create([
+                'path' => $directory . $fileName,
+                'original_name' => $image->getClientOriginalName(),
+            ]);
+
+            $product->productImages()->attach($fileRecord->id);
         }
         return new ProductResource($product);
     }
@@ -60,17 +59,77 @@ class ProductController extends Controller
         return new ProductResource($product);
     }
 
-    public function update(ProductRequest $request, $id)
+    public function update(Request $request, $id)
     {
-        $product = $this->productService->getProductById($id);
-        $this->productService->updateProduct($product, $request->validated());
-        return new ProductResource($product);
+        dump($id);
+        dump($request->all());
+        return "nice";
+       /*  $product = $this->productService->getProductById($id);
+        $data = $request->all();
+        dump($data); */
+        // dump($this->productService->updateProduct($product, $data));
+
+        /* $this->productService->updateProduct($product, $data);
+
+        if (isset($data['product_category_ids'])) {
+            $product->productCategories()->sync($data['product_category_ids']);
+        }*/
+
+    
+
+        /* return new ProductResource($product); */
     }
 
     public function destroy($id)
     {
         $product = $this->productService->getProductById($id);
+
+        // Delete product images
+        foreach ($product->productImages as $image) {
+            if (File::exists($image->path)) {
+                File::delete($image->path);
+            }
+            $image->delete();
+        }
+
+        // Detach product categories
+        $product->productCategories()->detach();
+
+        // Delete the product
         $this->productService->deleteProduct($product);
+
         return response()->noContent();
+    }
+
+    public function destroyImages(Request $request, $productId)
+    {
+        $data = $request->validated();
+
+        // Find the product
+        $product = $this->productService->getProductById($productId);
+
+        // Get the image IDs to delete
+        $imageIds = $data['product_image_ids'];
+
+        // Delete the images
+        foreach ($imageIds as $imageId) {
+            $image = FileRecord::find($imageId);
+
+            // Check if the image exists and is associated with the product
+            if ($image && $product->productImages->contains($imageId)) {
+                // Delete the file from the filesystem
+                if (File::exists($image->path)) {
+                    File::delete($image->path);
+                }
+
+                // Detach the image from the product
+                $product->productImages()->detach($imageId);
+
+                // Delete the image record from the database
+                $image->delete();
+            }
+        }
+
+        return response()->json( 200);
     }
 }

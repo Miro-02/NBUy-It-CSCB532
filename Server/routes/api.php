@@ -50,6 +50,7 @@ Route::get('/test4', function () {
     Route::get('/products/{id}', [ProductController::class, 'show']);
     Route::put('/products/{id}', [ProductController::class, 'update']);
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+    Route::delete('/products/{id}/delete-images', [ProductController::class, 'destroyImages']);
 
     // ProductCategoryController routes
     Route::get('/product-categories', [ProductCategoryController::class, 'index']);
