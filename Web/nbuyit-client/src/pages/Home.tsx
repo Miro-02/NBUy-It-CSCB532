@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 
 function Home() {
     const [selectedCategory, setSelectedCategory] = useState(0);
@@ -111,6 +112,7 @@ function Home() {
                             key={product.id}
                             className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden flex flex-col h-full"
                         >
+                            <Link to={`/products/${product.id}`} className="flex flex-col h-full">
                             <div className="aspect-square overflow-hidden">
                                 <img
                                     src={product.image}
@@ -151,6 +153,7 @@ function Home() {
                                     </button>
                                 </div>
                             </div>
+                            </Link>
                         </article>
                     ))}
                 </div>
