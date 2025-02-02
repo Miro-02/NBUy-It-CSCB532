@@ -18,4 +18,8 @@ class OrderProduct extends Model
         'popularity',
         'order_product_status_id',
     ];
+
+    public function order(){
+        return $this->hasMany(Order::class, 'orders_order_products');
+    }
 }

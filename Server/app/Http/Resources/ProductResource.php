@@ -18,6 +18,7 @@ class ProductResource extends JsonResource
             'popularity' => $this->popularity,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'product_categories' => ProductCategoryResource::collection($this->whenLoaded('productCategories')),
         ];
     }
 }

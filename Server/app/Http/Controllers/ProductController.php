@@ -19,7 +19,7 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = $this->productService->getAllProducts();
+        $products = $this->productService->getAllProducts()->load('productCategories'); 
         return ProductResource::collection($products);
     }
 
@@ -35,7 +35,7 @@ class ProductController extends Controller
 
     public function show($id)
     {
-        $product = $this->productService->getProductById($id);
+        $product = $this->productService->getProductById($id)->load('productCategories');
         return new ProductResource($product);
     }
 

@@ -23,4 +23,13 @@ class Product extends Model
         return $this->belongsToMany(ProductCategory::class, 'products_product_categories');
     }
 
+    public function carts()
+    {
+        return $this->hasMany(Cart::class, 'carts_products');
+    }
+
+    public function images(){
+        return $this->hasMany(File::class, 'products_images');
+    }
+
 }
