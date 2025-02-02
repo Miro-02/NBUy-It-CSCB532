@@ -38,7 +38,7 @@ function App() {
           element={isAuthenticated ? <Cart /> : <Navigate to='/login' />}
           />
           <Route
-          path='/add-product'
+          path='/products/add'
           element={isAuthenticated ? <AddProduct /> : <Navigate to='/login' />}
           />
           <Route path='*' element={<NotFound />} />
