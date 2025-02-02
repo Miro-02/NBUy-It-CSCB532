@@ -1,23 +1,13 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
-const categories = [
-    "Electronics",
-    "Home & Kitchen",
-    "Sports & Fitness",
-    "Beauty & Personal Care",
-    "Clothing",
-    "Books",
-    "Other"
-] as const;
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const productSchema = z.object({
     name: z.string().min(3, "Name must be at least 3 characters"),
     description: z.string().min(10, "Description must be at least 10 characters"),
-    category: z.enum(categories, {
-        errorMap: () => ({ message: "Please select a category" })
-    }),
+    categories: z.array(z.number()).min(1, "Please select at least one category"),
     price: z.number().min(0.01, {message: "Price must be greater than 0"}),
     quantity: z.number().min(0, {message: "Quantity can't be negative"}).int(),
     images: z.array(z.instanceof(File)).min(1, "At least one image required")
@@ -37,7 +27,41 @@ export function AddProduct() {
     resolver: zodResolver(productSchema)
   });
 
+  const [categories, setCategories] = useState<Array<{ id: number; name: string }>>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get<{ data: Array<{ id: number; name: string }> }>(
+          `${import.meta.env.VITE_SERVER_URL}/api/product-categories`
+        );
+        setCategories(response.data.data);
+      } catch (err) {
+        setCategoriesError(
+          axios.isAxiosError(err)
+            ? err.response?.data?.message || err.message
+            : 'Failed to load categories'
+        );
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+  
+    fetchCategories();
+  }, []);
+
   const selectedImages = watch("images") || [];
+  const selectedCategories = watch("categories") || [];
+
+  const handleCategoryChange = (categoryId: number) => {
+    const newCategories = selectedCategories.includes(categoryId)
+      ? selectedCategories.filter(id => id !== categoryId)
+      : [...selectedCategories, categoryId];
+      
+    setValue("categories", newCategories);
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -54,7 +78,7 @@ export function AddProduct() {
     
     formData.append("name", data.name);
     formData.append("description", data.description);
-    formData.append("category", data.category);
+    data.categories.forEach(id => formData.append("product_category_ids", id.toString()));
     formData.append("price", data.price.toString());
     formData.append("quantity", data.quantity.toString());
   
@@ -68,6 +92,52 @@ export function AddProduct() {
     }
   
     reset();
+  };
+
+  const renderCategories = () => {
+    if (loadingCategories) {
+      return (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {[...Array(6)].map((_, index) => (
+            <div key={index} className="h-12 bg-gray-100 rounded-lg animate-pulse" />
+          ))}
+        </div>
+      );
+    }
+
+    if (categoriesError) {
+      return <p className="text-red-500 text-sm">{categoriesError}</p>;
+    }
+
+    return (
+      <div className="flex flex-wrap gap-2">
+        {categories.map((category) => (
+          <div
+            key={category.id}
+            className={`relative flex items-start p-3 border rounded-lg cursor-pointer transition-colors ${
+              selectedCategories.includes(category.id)
+                ? 'border-[#093f87] bg-[#093f87]/10'
+                : 'border-gray-200 hover:border-[#093f87]'
+            }`}
+            onClick={() => handleCategoryChange(category.id)}
+          >
+            <div className="flex items-center h-5">
+              <input
+                type="checkbox"
+                checked={selectedCategories.includes(category.id)}
+                onChange={() => {}}
+                className="h-4 w-4 text-[#093f87] border-gray-300 rounded focus:ring-[#093f87]"
+              />
+            </div>
+            <div className="ml-3 text-sm">
+              <label className="text-gray-700 cursor-pointer">
+                {category.name}
+              </label>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -110,24 +180,12 @@ export function AddProduct() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Categories
               </label>
-              <select
-                {...register("category")}
-                className={`w-full px-4 py-2 rounded-lg border ${
-                  errors.category ? "border-red-500" : "border-gray-200"
-                } focus:ring-[#093f87] focus:border-[#093f87]`}
-              >
-                <option value="">Select a category</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-              {errors.category && (
-                <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>
+              {renderCategories()}
+              {errors.categories && (
+                <p className="text-red-500 text-sm mt-1">{errors.categories.message}</p>
               )}
             </div>
 

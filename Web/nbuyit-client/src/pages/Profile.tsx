@@ -6,7 +6,7 @@ function Profile() {
 
     return (
         isAuthenticated && (
-            <div className="flex items-center justify-center h-screen bg-gray-200">
+            <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-gray-50 to-[#093f87]">
                 <ProfileCard />
             </div>
         )

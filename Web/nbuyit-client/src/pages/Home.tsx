@@ -1,66 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import axios from "axios";
+import NoImageProduct from "../assets/product-no-image.webp";
 
 function Home() {
+    const [products, setProducts] = useState<any[]>([]);
     const [selectedCategory, setSelectedCategory] = useState(0);
+    
+    useEffect(() => {
+        axios
+          .get("http://127.0.0.1:8000/api/products")
+          .then((response) => {
+            setProducts(response.data.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching products:", error);
+          });
+      }, []);
 
-    const categories = [
-        { id: 1, name: 'Electronics' },
-        { id: 2, name: 'Home Appliances' },
-        { id: 3, name: 'Computer Accessories' },
-        { id: 4, name: 'Sports & Fitness' },
-        { id: 5, name: 'Home & Kitchen' },
-        { id: 6, name: 'Beauty & Care' },
-    ];
-
-    const products = [
-        {
-            id: 1,
-            name: 'Apple iPhone 13, 128GB, 4GB RAM, 5G, Midnight',
-            image: 'https://s13emagst.akamaized.net/products/40685/40684414/images/res_974dc0e4b6a1180b612c24afef8eb494.jpg',
-            price: '979,99 лв.',
-            category: categories[0].id,
-        },
-        {
-            id: 2,
-            name: 'Блендер Philips HR3041/00 Series 5000, 1200 W, Остриета New ProBlend Plus, Оребрена стъклена купа, 3 скорости плюс импулс, Подвижни остриета, Капацитет 2 л, Автоматизирано почистване с едно докосване, Черен',
-            image: 'https://s13emagst.akamaized.net/products/67591/67590545/images/res_8aaaf887d6ad8f061a462f621e202929.jpg',
-            price: '173,99 лв.',
-            category: categories[4].id,
-        },
-        {
-            id: 3,
-            name: 'Механична клавиатура ZENKABEAT, Bluetooth, 2.4 Ghz, RGB, 68 клавиша, Функция за бърза смяна, Адаптивен RGB софтуер, Съвместима с Play Station, Type-C към USB 3.0, Батерия 3150 mAh, С кабел/Безжична, Червени превключватели, Бял',
-            image: 'https://s13emagst.akamaized.net/products/34626/34625907/images/res_ad3c682c77f9f89f7943e27d297d7dd6.jpg',
-            price: '121,09 лв.',
-            category: categories[0].id,
-        },
-        {
-            id: 4,
-            name: 'Гира Orion, Винил, 5 кг',
-            image: 'https://s13emagst.akamaized.net/products/78233/78232949/images/res_f9a7433c3c80776da6b75c21b7ea2d40.jpg',
-            price: '27,99 лв.',
-            category: categories[3].id,
-        },
-        {
-            id: 5,
-            name: 'Двойно спално бельо, 4 части, Superior Satin Cotton, Yellow-Grey, мигли и звезди, Promerco®️',
-            image: 'https://s13emagst.akamaized.net/products/68126/68125402/images/res_060ea067eb96437f70e3cdf54eabb275.jpg?width=720&height=720&hash=22771AC83D0F654DC8610C22DA3681B2',
-            price: '35,36 лв.',
-            category: categories[4].id,
-        },
-        {
-            id: 6,
-            name: 'Крем от шамфъстък Pisti, За мазане, 200 г',
-            image: 'https://s13emagst.akamaized.net/products/56959/56958177/images/res_bbc8ad214d844859dfe6dc6e87f621c3.jpg?width=720&height=720&hash=AC8C3EA681724E74B33DE8DB0A908944',
-            price: '18,62 лв.',
-            category: categories[4].id,
-        },
-    ];
-
-    const filteredProducts = selectedCategory === 0 
-        ? products 
-        : products.filter(product => product.category === selectedCategory);
+      const mappedProducts = products.map((product) => ({
+        ...product,
+        image: product.image || NoImageProduct,
+        price: product.price ? `${product.price} лв.` : "N/A",
+        categories: product.product_categories || [],
+      }));
+    
 
     return (
         <div className="min-h-screen bg-gray-50 py-8">
@@ -77,37 +41,8 @@ function Home() {
                     />
                 </div>
 
-                <div className="mb-8 flex flex-wrap justify-center gap-3">
-                    <button
-                        onClick={() => setSelectedCategory(0)}
-                        className={`px-4 py-2 rounded-xl transition-colors ${
-                            selectedCategory === 0 
-                                ? 'bg-[#093f87] text-white' 
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                    >
-                        All
-                    </button>
-
-                    {
-                        categories.map((category) => (
-                            <button
-                                key={category.id}
-                                onClick={() => setSelectedCategory(category.id)}
-                                className={`px-4 py-2 rounded-xl transition-colors ${
-                                    selectedCategory === category.id 
-                                        ? 'bg-[#093f87] text-white' 
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                }`}
-                            >
-                                {category.name}
-                            </button>
-                        ))
-                    }
-                </div>
-
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {filteredProducts.map((product) => (
+                    {mappedProducts.map((product) => (
                         <article
                             key={product.id}
                             className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden flex flex-col h-full"
@@ -123,12 +58,35 @@ function Home() {
 
                             <div className="p-4 flex flex-col flex-grow">
                                 <h2 
-                                    title={product.name} 
                                     className="text-gray-800 line-clamp-3 mb-3 text-sm leading-snug"
+                                    title={product.name} 
                                 >
                                     {product.name}
                                 </h2>
-                                
+
+                                {product.categories?.length > 0 && (
+                                    <div className="mb-2 text-sm text-gray-500">
+                                        <div className="relative group">
+                                        <div className="flex gap-1.5 overflow-hidden relative">
+                                            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white z-10" />
+                                            {product.categories.slice(0, 3).map((category, index, arr) => (
+                                            <span 
+                                                key={category.id}
+                                                className="relative text-nowrap after:content-[','] last:after:content-none"
+                                            >
+                                                {category.name}
+                                            </span>
+                                            ))}
+                                        </div>
+                                        </div>
+
+                                        {product.categories.length > 3 && (
+                                        <span className="text-gray-400 text-xs mt-1">
+                                            + {product.categories.length - 3} more
+                                        </span>
+                                        )}
+                                    </div>
+                                    )}
                                 <div className="mt-auto flex items-end justify-between">
                                     <p className="text-lg font-bold text-[#093f87]">
                                         {product.price}
