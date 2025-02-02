@@ -11,28 +11,6 @@ use App\Http\Controllers\OrderProductController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\CartController;
 
-// Public test routes
-Route::get('/test', function () {
-    return response()->json(['message' => 'Test route accessed successfully']);
-});
-
-Route::get('/test2', function () {
-    dump("nice2");
-    return response("NICE");
-})->middleware('auth');
-
-Route::get('/test3', function () {
-    dump("nice3");
-    return response()->json(['message' => 'Test3 route accessed successfully']);
-})->middleware('auth0.authenticate');
-
-Route::get('/test4', function () {
-    dump("nice4");
-    return response()->json(['message' => 'Test4 route accessed successfully']);
-});
-
-// Protected Routes: Requires Auth0 Authentication
-// Route::middleware(['auth0.authenticate'])->group(function () {
     // UserController routes
     Route::post('/users', [UserController::class, 'store']);
     Route::put('/users/{user}', [UserController::class, 'update']);
