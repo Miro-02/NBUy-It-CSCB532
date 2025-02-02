@@ -30,12 +30,15 @@ class ProductController extends Controller
         if (isset($data['product_category_ids'])) {
             $product->productCategories()->sync($data['product_category_ids']);
         }
+        if(isset($data['product_images'])){
+            
+        }
         return new ProductResource($product);
     }
 
     public function show($id)
     {
-        $product = $this->productService->getProductById($id)->load('productCategories');
+        $product = $this->productService->getProductById($id)->load('productCategories', 'productImages');
         return new ProductResource($product);
     }
 

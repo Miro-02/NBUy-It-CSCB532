@@ -77,10 +77,6 @@ Route::get('/test4', function () {
     Route::put('/order-products/{orderProduct}', [OrderProductController::class, 'update']);
     Route::delete('/order-products/{orderProduct}', [OrderProductController::class, 'destroy']);
 
-    // FileController routes
-    Route::post('/files', [FileController::class, 'store']);
-    Route::get('/files/{id}', [FileController::class, 'show']);
-
     // CartController routes
     Route::post('/cart', [CartController::class, 'addProductToCart']);
     Route::delete('/cart/{id}', [CartController::class, 'removeProductFromCart']);

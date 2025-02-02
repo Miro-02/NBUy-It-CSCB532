@@ -28,8 +28,8 @@ class Product extends Model
         return $this->hasMany(Cart::class, 'carts_products');
     }
 
-    public function images(){
-        return $this->hasMany(File::class, 'products_images');
+    public function productImages(){
+        return $this->belongsToMany(File::class, 'products_images', 'product_id', 'image_id');
     }
 
 }
