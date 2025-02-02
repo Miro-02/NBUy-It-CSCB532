@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\FileRecord;
 use File;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -59,25 +60,84 @@ class ProductController extends Controller
         return new ProductResource($product);
     }
 
-    public function update(Request $request, $id)
+    public function update($id, UpdateProductRequest $request)
     {
-        dump($id);
-        dump($request->all());
-        return "nice";
-       /*  $product = $this->productService->getProductById($id);
-        $data = $request->all();
-        dump($data); */
-        // dump($this->productService->updateProduct($product, $data));
+        DB::beginTransaction();
 
-        /* $this->productService->updateProduct($product, $data);
+        try {
+            $product = $this->productService->getProductById($id);
+            $data = $request->validated();
 
-        if (isset($data['product_category_ids'])) {
-            $product->productCategories()->sync($data['product_category_ids']);
-        }*/
+            $deleteProductImagesIds = $data['delete_product_images_ids'] ?? [];
 
-    
+            // Update the product
+            $this->productService->updateProduct($product, $data);
 
-        /* return new ProductResource($product); */
+            // Sync product categories
+            if (isset($data['product_category_ids'])) {
+                $product->productCategories()->sync($data['product_category_ids']);
+            }
+
+            // Handle new product images
+            if (isset($data['product_images']) && !empty($data['product_images'])) {
+                $images = $data['product_images'];
+                foreach ($images as $image) {
+                    $directory = 'files/product_images/';
+
+                    $fileName = uniqid(mt_rand(), true) . '.' . $image->getClientOriginalExtension();
+
+                    $image->move($directory, $fileName);
+
+                    $fileRecord = FileRecord::create([
+                        'path' => $directory . $fileName,
+                        'original_name' => $image->getClientOriginalName(),
+                    ]);
+                    $product->productImages()->attach($fileRecord->id);
+                }
+            }
+
+            // Handle deletion of product images
+            if (!empty($deleteProductImagesIds)) {
+                foreach ($deleteProductImagesIds as $imageId) {
+                    $image = FileRecord::find($imageId);
+                    if ($image) {
+                        
+                        // Detach the image from the product
+                        $product->productImages()->detach($imageId);
+
+                        // Delete the file from storage
+                        if (File::exists($image->path)) {
+                            File::delete($image->path);
+                        }
+
+                        // Delete the file record
+                        $image->delete();
+                    }
+                }
+            }
+
+            // After all actions, check if the product has at least one image
+            $product->load('productImages'); // Refresh the relationship
+            if ($product->productImages->isEmpty()) {
+                DB::rollBack(); // Revert all changes
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The product must have at least one image.',
+                ], 400);
+            }
+
+            DB::commit();
+
+            return new ProductResource($product);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating the product.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function destroy($id)
@@ -99,37 +159,5 @@ class ProductController extends Controller
         $this->productService->deleteProduct($product);
 
         return response()->noContent();
-    }
-
-    public function destroyImages(Request $request, $productId)
-    {
-        $data = $request->validated();
-
-        // Find the product
-        $product = $this->productService->getProductById($productId);
-
-        // Get the image IDs to delete
-        $imageIds = $data['product_image_ids'];
-
-        // Delete the images
-        foreach ($imageIds as $imageId) {
-            $image = FileRecord::find($imageId);
-
-            // Check if the image exists and is associated with the product
-            if ($image && $product->productImages->contains($imageId)) {
-                // Delete the file from the filesystem
-                if (File::exists($image->path)) {
-                    File::delete($image->path);
-                }
-
-                // Detach the image from the product
-                $product->productImages()->detach($imageId);
-
-                // Delete the image record from the database
-                $image->delete();
-            }
-        }
-
-        return response()->json( 200);
     }
 }
