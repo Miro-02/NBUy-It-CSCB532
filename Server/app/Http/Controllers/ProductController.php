@@ -25,7 +25,13 @@ class ProductController extends Controller
 
     public function store(ProductRequest $request)
     {
-        $product = $this->productService->createProduct($request->validated());
+        // $product = Product::find(1);
+        // dump($product->productCategories);
+        $data = $request->validated();
+        $product = $this->productService->createProduct($data);
+        if (isset($data['product_category_ids'])) {
+            $product->productCategories()->sync($data['product_category_ids']);
+        }
         return new ProductResource($product);
     }
 

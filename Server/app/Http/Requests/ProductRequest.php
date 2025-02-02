@@ -20,6 +20,8 @@ class ProductRequest extends FormRequest
             'seller_id' => 'required|exists:users,id',
             'quantity' => 'required|integer|min:0',
             'popularity' => 'nullable|integer|min:0',
+            'product_category_ids' => 'nullable|array',
+            'product_category_ids.*' => 'exists:product_categories,id'
         ];
     }
 }

@@ -17,4 +17,10 @@ class Product extends Model
         'quantity',
         'popularity',
     ];
+
+    public function productCategories()
+    {
+        return $this->belongsToMany(ProductCategory::class, 'products_product_categories');
+    }
+
 }
