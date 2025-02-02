@@ -23,7 +23,7 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = $this->productService->getAllProducts()->load('productCategories');
+        $products = $this->productService->getAllProducts()->load('productCategories', 'productImages');
         return ProductResource::collection($products);
     }
 
