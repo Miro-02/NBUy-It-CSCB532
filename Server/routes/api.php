@@ -38,6 +38,8 @@ Route::get('/test4', function () {
     Route::put('/users/{user}', [UserController::class, 'update']);
     Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
+    Route::put('/users/{user}/update-role', [UserController::class, 'updateRole']);
+
     // RoleController routes
     Route::get('/roles', [RoleController::class, 'index']);
     Route::get('/roles/{id}', [RoleController::class, 'show']);

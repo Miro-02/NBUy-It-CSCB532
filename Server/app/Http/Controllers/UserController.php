@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
+use App\Http\Requests\UserUpdateRoleRequest;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
@@ -36,7 +37,15 @@ class UserController extends Controller
         return response()->json(null, 204);
     }
 
-    public function syncUser(Request $request) {
+    public function updateRole(UserUpdateRoleRequest $request, User $user)
+    {
+        $data =  $request->validated();
+        $user->role_id = $data['role_id'];
+        $user->save();
+        return response()->json(null, 200);
+    }
+
+    /* public function syncUser(Request $request) {
         // Get and validate JWT
         $token = $request->bearerToken();
         
@@ -67,5 +76,5 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 401);
         }
-    }
+    } */
 }
