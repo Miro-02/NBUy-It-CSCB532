@@ -15,7 +15,6 @@ return new class extends Migration
             $table->string('phone');
             $table->boolean('is_banned')->default(false);
             $table->foreignId('cart_id')->nullable()->constrained('carts')->onDelete('set null');
-            $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
             $table->unsignedInteger('age');
             $table->string('address');
         });
@@ -28,7 +27,6 @@ return new class extends Migration
     {   
         Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['cart_id']);
-            $table->dropForeign(['role_id']);
             $table->dropColumn(['phone', 'is_banned', 'cart_id', 'age', 'address']);
         });
     }
