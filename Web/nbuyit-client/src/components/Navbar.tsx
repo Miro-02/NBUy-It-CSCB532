@@ -3,7 +3,7 @@ import LoginButton from './LoginButton';
 import { Link } from "react-router";
 
 function Navbar() {
-    const { isAuthenticated, user } = useAuth0();
+    const { isAuthenticated } = useAuth0();
     
     return (
         <nav className="bg-[#093f87] text-white shadow-lg sticky top-0 z-50">
@@ -35,7 +35,7 @@ function Navbar() {
                                 to="/profile" 
                                 className="text-sm font-medium hover:text-gray-300 transition-colors"
                             >
-                                {user?.nickname}
+                                My Account
                             </Link>
                         </div>
                     ) : (

@@ -1,69 +1,71 @@
 import { Link, useParams } from "react-router";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import NoImageProduct from "../assets/product-no-image.webp";
 
 function ProductDetails() {
     const { id } = useParams<{ id: string }>();
     const [product, setProduct] = useState<any>(null);
-    const [selectedImage, setSelectedImage] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [categories, setCategories] = useState<Array<{ id: number; name: string }>>([]);
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-    const categories = [
-        { id: 1, name: 'Electronics' },
-        { id: 2, name: 'Home Appliances' },
-        { id: 3, name: 'Computer Accessories' },
-        { id: 4, name: 'Sports & Fitness' },
-        { id: 5, name: 'Home & Kitchen' },
-        { id: 6, name: 'Beauty & Care' },
-    ];
-
-    const products = [
-        {
-            id: 1,
-            name: 'Apple iPhone 13, 128GB, 4GB RAM, 5G, Midnight',
-            image: 'https://s13emagst.akamaized.net/products/40685/40684414/images/res_974dc0e4b6a1180b612c24afef8eb494.jpg',
-            price: '979,99 лв.',
-            category: 1,
-        },
-        {
-            id: 2,
-            name: 'Блендер Philips HR3041/00 Series 5000, 1200 W, Остриета New ProBlend Plus, Оребрена стъклена купа, 3 скорости плюс импулс, Подвижни остриета, Капацитет 2 л, Автоматизирано почистване с едно докосване, Черен',
-            image: 'https://s13emagst.akamaized.net/products/67591/67590545/images/res_8aaaf887d6ad8f061a462f621e202929.jpg',
-            price: '173,99 лв.',
-            category: 5,
-        },
-        {
-            id: 3,
-            name: 'Механична клавиатура ZENKABEAT, Bluetooth, 2.4 Ghz, RGB, 68 клавиша, Функция за бърза смяна, Адаптивен RGB софтуер, Съвместима с Play Station, Type-C към USB 3.0, Батерия 3150 mAh, С кабел/Безжична, Червени превключватели, Бял',
-            image: 'https://s13emagst.akamaized.net/products/34626/34625907/images/res_ad3c682c77f9f89f7943e27d297d7dd6.jpg',
-            price: '121,09 лв.',
-            category: 1,
-        },
-        {
-            id: 4,
-            name: 'Гира Orion, Винил, 5 кг',
-            image: 'https://s13emagst.akamaized.net/products/78233/78232949/images/res_f9a7433c3c80776da6b75c21b7ea2d40.jpg',
-            price: '27,99 лв.',
-            category: 4,
-        },
-        {
-            id: 5,
-            name: 'Двойно спално бельо, 4 части, Superior Satin Cotton, Yellow-Grey, мигли и звезди, Promerco®️',
-            image: 'https://s13emagst.akamaized.net/products/68126/68125402/images/res_060ea067eb96437f70e3cdf54eabb275.jpg?width=720&height=720&hash=22771AC83D0F654DC8610C22DA3681B2',
-            price: '35,36 лв.',
-            category: 5,
-        },
-        {
-            id: 6,
-            name: 'Крем от шамфъстък Pisti, За мазане, 200 г',
-            image: 'https://s13emagst.akamaized.net/products/56959/56958177/images/res_bbc8ad214d844859dfe6dc6e87f621c3.jpg?width=720&height=720&hash=AC8C3EA681724E74B33DE8DB0A908944',
-            price: '18,62 лв.',
-            category: 5,
-        },
-    ];
+    const goToPrevious = () => {
+        setActiveImageIndex(prev => 
+          prev === 0 ? product.product_images.length - 1 : prev - 1
+        );
+      };
+    
+      const goToNext = () => {
+        setActiveImageIndex(prev => 
+          prev === product.product_images.length - 1 ? 0 : prev + 1
+        );
+      };
 
     useEffect(() => {
-        const foundProduct = products.find(p => p.id === Number(id));
-        setProduct(foundProduct);
+        const fetchData = async () => {
+            try {
+                const productResponse = await axios.get(`http://127.0.0.1:8000/api/products/${id}`);
+                setProduct(productResponse.data.data);
+
+                const categoriesResponse = await axios.get('http://127.0.0.1:8000/api/product-categories');
+                setCategories(categoriesResponse.data.data);
+            } catch (err) {
+                setError(axios.isAxiosError(err) 
+                    ? err.response?.data?.message || 'Failed to load product' 
+                    : 'An unexpected error occurred');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, [id]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#093f87]"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-[#093f87] mb-4">{error}</h1>
+                    <Link
+                        to="/"
+                        className="text-[#093f87] hover:text-[#082f6a] underline"
+                    >
+                        Back to Home
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     if (!product) {
         return (
@@ -109,14 +111,83 @@ function ProductDetails() {
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div className="space-y-4">
-                            <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden">
+                    <div className="space-y-4">
+                        <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden relative">
+                        {product.product_images?.map((image: any, index: number) => (
+                            <img
+                                key={image.id}
+                                src={image.url || NoImageProduct}
+                                alt={product.name}
+                                className={`w-full h-full object-scale-down absolute inset-0 transition-opacity duration-300 ${
+                                    index === activeImageIndex ? 'opacity-100' : 'opacity-0'
+                                }`}
+                            />
+                            ))}
+                            
+                            {product.product_images?.length > 1 && (
+                            <>
+                                <button
+                                onClick={goToPrevious}
+                                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white transition-colors"
+                                >
+                                <svg
+                                    className="w-6 h-6 text-[#093f87]"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15 19l-7-7 7-7"
+                                    />
+                                </svg>
+                                </button>
+                                
+                                <button
+                                onClick={goToNext}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white transition-colors"
+                                >
+                                <svg
+                                    className="w-6 h-6 text-[#093f87]"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                    />
+                                </svg>
+                                </button>
+                            </>
+                            )}
+                        </div>
+
+                        {product.images?.length > 1 && (
+                            <div className="flex gap-2 overflow-x-auto py-2">
+                            {product.images.map((image: any, index: number) => (
+                                <button
+                                key={image.id}
+                                onClick={() => setActiveImageIndex(index)}
+                                className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all bg-white ${
+                                    index === activeImageIndex
+                                      ? 'border-[#093f87]'
+                                      : 'border-transparent'
+                                  }`}
+                                >
                                 <img
-                                    src={product.image}
+                                    src={image.image_url || NoImageProduct}
                                     alt={product.name}
-                                    className="w-full h-full"
+                                    className="w-full h-full object-contain bg-white"
                                 />
+                                </button>
+                            ))}
                             </div>
+                        )}
                         </div>
 
                         <div className="space-y-6">
@@ -158,12 +229,16 @@ function ProductDetails() {
                                 <dl className="grid grid-cols-2 gap-4">
                                     <div>
                                         <dt className="text-sm font-medium text-gray-500">
-                                            Category
+                                            Categories
                                         </dt>
-                                        <dd className="mt-1 text-sm text-[#093f87]">
-                                            {categories.find(c => c.id === product.category)?.name}
+                                        <dd className="mt-1 font-bold text-sm text-[#093f87]">
+                                            {product.product_categories?.map((pc: any) => (
+                                                <span key={pc.id} className="block">
+                                                    {pc.name}
+                                                </span>
+                                            ))}
                                         </dd>
-                                    </div>
+                                    </div>  
                                 </dl>
                             </div>
 

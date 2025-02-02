@@ -78,20 +78,30 @@ export function AddProduct() {
     
     formData.append("name", data.name);
     formData.append("description", data.description);
-    data.categories.forEach(id => formData.append("product_category_ids", id.toString()));
     formData.append("price", data.price.toString());
     formData.append("quantity", data.quantity.toString());
-  
+    formData.append("seller_id", "1");
+
+    data.categories.forEach(id => 
+      formData.append("product_category_ids[]", id.toString())
+    );
+
     data.images.forEach((file, index) => {
-      formData.append(`images`, file);
+      formData.append(`product_images[${index}]`, file);
     });
   
-    console.log("Form data entries:");
-    for (const [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-  
-    reset();
+    axios.post(`${import.meta.env.VITE_SERVER_URL}/api/products`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    .then(response => {
+      console.log('Product created:', response.data);
+      reset();
+    })
+    .catch(error => {
+      console.error('Error creating product:', error);
+    });
   };
 
   const renderCategories = () => {
@@ -235,7 +245,7 @@ export function AddProduct() {
                   <input
                     type="file"
                     multiple
-                    accept="image/*"
+                    accept=".png, .jpeg, .jpg, .webp"
                     onChange={handleImageUpload}
                     className="hidden"
                   />

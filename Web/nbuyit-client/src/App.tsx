@@ -10,9 +10,17 @@ import Cart from './pages/Cart';
 import { AddProduct } from './pages/AddProduct';
 import NotFound from './pages/NotFound';
 import ProductDetails from './pages/ProductDetails';
+import { useEffect } from 'react';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   const { isAuthenticated, isLoading } = useAuth0();
+
+  useEffect(() => {
+    if (window.history?.scrollRestoration) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -20,6 +28,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <div>
         <Navbar />
         <Routes>
