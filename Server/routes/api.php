@@ -10,21 +10,37 @@ use App\Http\Controllers\OrderProductStatusController;
 use App\Http\Controllers\OrderProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AuthController;
+use Spatie\Permission\Middlewares\RoleMiddleware;
+
+use Spatie\Permission\Models\Role;
 
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
+// Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    
-    // Admin-only route example
-    Route::middleware('role:admin')->get('/admin', function () {
-        return response()->json(['message' => 'Admin access granted']);
+
+    // Admin-only routes
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin', function () {
+            return response()->json(['message' => 'Admin access granted']);
+        });
+        Route::get('/admin-dashboard', function () {
+            return response()->json(['message' => 'Admin Access']);
+        });
     });
+
+    // Add your other authenticated routes here
+    // Route::apiResource(...)
 });
 
-Route::post('/users', [UserController::class, 'store']);
+Route::get('/test', function () {
+    return 'Test route';
+})->middleware(['auth:sanctum', 'role:buyer']);
+
+/* Route::post('/users', [UserController::class, 'store']);
 Route::put('/users/{user}', [UserController::class, 'update']);
 Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
@@ -71,4 +87,4 @@ Route::delete('/order-products/{orderProduct}', [OrderProductController::class, 
 Route::post('/cart', [CartController::class, 'addProductToCart']);
 Route::delete('/cart/{id}', [CartController::class, 'removeProductFromCart']);
 Route::get('/cart', [CartController::class, 'getUserCart']);
-// });
+// }); */
