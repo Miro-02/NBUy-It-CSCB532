@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('phone');
+            $table->string('phone')->nullable();
             $table->boolean('is_banned')->default(false);
             $table->foreignId('cart_id')->nullable()->constrained('carts')->onDelete('set null');
-            $table->unsignedInteger('age');
-            $table->string('address');
+            $table->unsignedInteger('age')->nullable();
+            $table->string('address')->nullable();
         });
     }
 
