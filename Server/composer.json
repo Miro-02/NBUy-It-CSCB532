@@ -7,9 +7,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "auth0/login": "^7.15",
         "laravel/framework": "^11.31",
-        "laravel/tinker": "^2.9"
+        "laravel/sanctum": "^4.0",
+        "laravel/tinker": "^2.9",
+        "spatie/laravel-permission": "^6.12"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^2.0",

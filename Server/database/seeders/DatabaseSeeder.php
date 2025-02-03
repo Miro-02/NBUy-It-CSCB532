@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
                 'phone' => "12345678$i",
                 'is_banned' => false,
                 'cart_id' => null,
-                'role_id' => 2, // Assuming "2" is for Sellers
                 'age' => rand(18, 50),
                 'address' => "Address $i",
                 'created_at' => Carbon::now(),
