@@ -27,6 +27,6 @@ class CartService
 
     public function getUserCart($userId)
     {
-        return Cart::with('products')->where('user_id', $userId)->first();
+        return Cart::with('products')->firstOrCreate(['user_id' => $userId]);
     }
 }
