@@ -8,24 +8,25 @@ class CartService
 {
     public function addProductToCart($userId, $productId, $quantity)
     {
-        $cart = Cart::firstOrCreate(['user_id' => $userId]); // Assuming you have a `user_id` field on `carts` table
+        $cart = Cart::firstOrCreate(['user_id' => $userId]);
 
-        // Add product to the cart with quantity
-        $cart->products()->syncWithoutDetaching([
-            $productId => ['quantity' => $quantity]
-        ]);
+        // Attach or update the product with the given quantity
+        $cart->products()->sync([$productId => ['quantity' => $quantity]], false);
 
-        return $cart; // Return the updated cart
+        return $cart->load('products');
     }
 
-    public function removeProductFromCart($cartId)
+    public function removeProductFromCart($userId, $productId)
     {
-        $cart = Cart::findOrFail($cartId);
-        $cart->delete();
+        $cart = Cart::where('user_id', $userId)->first();
+
+        if ($cart) {
+            $cart->products()->detach($productId);
+        }
     }
 
     public function getUserCart($userId)
     {
-        return Cart::where('user_id', $userId)->with('product')->get();
+        return Cart::with('products')->where('user_id', $userId)->first();
     }
 }

@@ -18,29 +18,28 @@ class CartController extends Controller
 
     public function addProductToCart(AddProductToCartRequest $request)
     {
-        // Validate that the product ID exists and the quantity is a valid number
-        $validated = $request->validated();
-    
-        // Pass the validated data to the service
+        $data = $request->validated();
         $cart = $this->cartService->addProductToCart(
             $request->user()->id,
-            $validated['product_id'],
-            $validated['quantity']
+            $data['product_id'],
+            $data['quantity']
         );
     
-        // Return the updated cart resource
         return new CartResource($cart);
     }
 
-    public function removeProductFromCart($id)
+    public function removeProductFromCart(Request $request, $productId)
     {
-        $this->cartService->removeProductFromCart($id);
+        $this->cartService->removeProductFromCart(
+            $request->user()->id,
+            $productId
+        );
         return response()->json(null, 204);
     }
 
     public function getUserCart(Request $request)
     {
         $cart = $this->cartService->getUserCart($request->user()->id);
-        return CartResource::collection($cart);
+        return new CartResource($cart);
     }
 }
