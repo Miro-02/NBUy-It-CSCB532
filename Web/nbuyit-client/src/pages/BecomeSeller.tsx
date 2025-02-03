@@ -97,7 +97,7 @@ export default function BecomeSeller() {
             </button>
             
             <Link
-              to="/" // Replace with your actual cancel route
+              to="/"
               className="px-6 py-3 rounded-lg border border-[#093f87] text-[#093f87] hover:bg-[#093f87]/10 text-center"
             >
               Cancel

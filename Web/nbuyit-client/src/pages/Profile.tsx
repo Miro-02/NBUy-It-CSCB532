@@ -1,8 +1,8 @@
-import { useAuth0 } from "@auth0/auth0-react";
 import ProfileCard from "../components/ProfileCard";
+import { useAuth } from "../auth/AuthContext";
 
 function Profile() {
-    const { isAuthenticated } = useAuth0();
+    const { isAuthenticated } = useAuth();
 
     return (
         isAuthenticated && (

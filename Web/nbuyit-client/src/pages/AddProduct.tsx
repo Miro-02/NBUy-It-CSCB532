@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router";
 
 const productSchema = z.object({
     name: z.string().min(3, "Name must be at least 3 characters"),
@@ -30,6 +31,7 @@ export function AddProduct() {
   const [categories, setCategories] = useState<Array<{ id: number; name: string }>>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -102,6 +104,8 @@ export function AddProduct() {
     .catch(error => {
       console.error('Error creating product:', error);
     });
+
+    navigate('/');
   };
 
   const renderCategories = () => {
