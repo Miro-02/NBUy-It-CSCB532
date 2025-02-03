@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
-    public function store(OrderRequest $request)
+    public function store(Request $request)
     {
         $user = $request->user()->id;
         

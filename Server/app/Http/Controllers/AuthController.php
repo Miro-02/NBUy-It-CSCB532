@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Models\Cart;
 
 class AuthController extends Controller
 {
@@ -25,6 +26,8 @@ class AuthController extends Controller
 
         // Optional: Assign default 'user' role
         $user->assignRole('buyer');
+
+        Cart::create(['user_id' => $user->id]);
 
         return response()->json(['user' => $user], 201);
     }
