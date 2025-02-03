@@ -24,7 +24,7 @@ class AuthController extends Controller
         ]);
 
         // Optional: Assign default 'user' role
-        $user->assignRole('user');
+        $user->assignRole('buyer');
 
         return response()->json(['user' => $user], 201);
     }
