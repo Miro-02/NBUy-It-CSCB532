@@ -16,8 +16,10 @@ class RolesAndPermissionsSeeder extends Seeder
     public function run()
     {
         $adminRole = Role::create(['name' => 'admin']);
-        $userRole = Role::create(['name' => 'user']);
-    
+        Role::create(['name' => 'buyer']);
+        Role::create(['name' => 'seller']);
+        Role::create(['name' => 'order-manager']);
+
         // Create admin user
         $admin = User::create([
             'name' => 'Admin',
@@ -27,7 +29,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'age' => 18,
             'address' => 'test',
         ]);
-        
+
         $admin->assignRole($adminRole);
     }
 }
