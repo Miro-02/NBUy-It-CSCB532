@@ -12,7 +12,6 @@ class CartResource extends JsonResource
             'id' => $this->id,
             'user_id' => $this->user_id,
             'products' => ProductResource::collection($this->whenLoaded('products'))->map(function ($product) {
-                // Add the pivot quantity to each product
                 $product->quantity = $product->pivot->quantity;
                 return $product;
             }),

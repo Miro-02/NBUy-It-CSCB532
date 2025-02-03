@@ -19,14 +19,20 @@ class CartController extends Controller
     public function addProductToCart(AddProductToCartRequest $request)
     {
         $data = $request->validated();
+
+        // If no quantity is provided, set to 0 (indicating to increment by 1)
+        $quantity = $data['quantity'] ?? 0;
+
         $cart = $this->cartService->addProductToCart(
             $request->user()->id,
             $data['product_id'],
-            $data['quantity']
+            $quantity
         );
-    
+
         return new CartResource($cart);
     }
+
+
 
     public function removeProductFromCart(Request $request, $productId)
     {

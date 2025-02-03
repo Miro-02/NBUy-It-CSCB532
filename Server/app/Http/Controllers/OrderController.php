@@ -18,9 +18,9 @@ class OrderController extends Controller
         $user = $request->user();
         
         // Get user's cart items
-        $cart = Cart::where('user_id', $user->id)->get();
+        $cart = Cart::where('user_id', $user->id)->first();
         
-        if ($cart->isEmpty()) {
+        if (!$cart || $cart->products->isEmpty()) {
             return response()->json(['message' => 'Cart is empty'], 400);
         }
 
@@ -35,11 +35,7 @@ class OrderController extends Controller
 
         $orderProductsStatus = OrderProductStatus::where('name', 'pending')->firstOrFail();
 
-        // Create order products from cart items
-        /* $products = $carts->products;
-        dump($products); */
-        dump($cart[0]->products[0]);
-        foreach ($cart[0]->products as $product) {
+        foreach ($cart->products as $product) {
             OrderProduct::create([
                 'product_id' => $product->id,
                 'name' => $product->name,
@@ -51,7 +47,7 @@ class OrderController extends Controller
             ]);
         }
 
-        $cart->products->detach();
+        $cart->products()->delete();
 
         return response()->json($order->load('orderProducts'), 201);
     }
