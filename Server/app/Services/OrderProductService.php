@@ -3,9 +3,15 @@
 namespace App\Services;
 
 use App\Models\OrderProduct;
+use Illuminate\Database\Eloquent\Collection;
 
 class OrderProductService
 {
+    public function getAll(): Collection
+    {
+        return OrderProduct::all();
+    }
+
     public function create(array $data): OrderProduct
     {
         return OrderProduct::create($data);

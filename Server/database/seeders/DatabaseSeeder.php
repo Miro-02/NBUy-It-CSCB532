@@ -8,24 +8,6 @@ class DatabaseSeeder extends Seeder
 {
     public function run()
     {
-        // Insert users
-        $users = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $users[] = [
-                'name' => "User $i",
-                'email' => "user$i@example.com",
-                'password' => bcrypt('password'),
-                'phone' => "12345678$i",
-                'is_banned' => false,
-                'cart_id' => null,
-                'age' => rand(18, 50),
-                'address' => "Address $i",
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ];
-        }
-        DB::table('users')->insert($users);
-
         // Insert product categories
         $categories = [
             ['name' => 'Electronics', 'slug' => 'electronics'],

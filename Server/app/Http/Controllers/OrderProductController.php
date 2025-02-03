@@ -17,10 +17,21 @@ class OrderProductController extends Controller
         $this->orderProductService = $orderProductService;
     }
 
+    public function index(): JsonResponse
+    {
+        $orderProducts = $this->orderProductService->getAll();
+        return response()->json(OrderProductResource::collection($orderProducts));
+    }
+
     public function store(OrderProductRequest $request): JsonResponse
     {
         $orderProduct = $this->orderProductService->create($request->validated());
         return response()->json(new OrderProductResource($orderProduct), 201);
+    }
+
+    public function show(OrderProduct $orderProduct): JsonResponse
+    {
+        return response()->json(new OrderProductResource($orderProduct));
     }
 
     public function update(OrderProductRequest $request, OrderProduct $orderProduct): JsonResponse

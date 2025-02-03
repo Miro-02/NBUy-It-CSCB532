@@ -23,10 +23,10 @@ class Product extends Model
         return $this->belongsToMany(ProductCategory::class, 'products_product_categories');
     }
 
-    public function carts()
+    /* public function carts()
     {
         return $this->hasMany(Cart::class, 'carts_products');
-    }
+    } */
 
     public function productImages(){
         return $this->belongsToMany(FileRecord::class, 'products_images', 'product_id', 'image_id');

@@ -18,7 +18,17 @@ class CartController extends Controller
 
     public function addProductToCart(AddProductToCartRequest $request)
     {
-        $cart = $this->cartService->addProductToCart($request->user()->id, $request->product_id);
+        // Validate that the product ID exists and the quantity is a valid number
+        $validated = $request->validated();
+    
+        // Pass the validated data to the service
+        $cart = $this->cartService->addProductToCart(
+            $request->user()->id,
+            $validated['product_id'],
+            $validated['quantity']
+        );
+    
+        // Return the updated cart resource
         return new CartResource($cart);
     }
 

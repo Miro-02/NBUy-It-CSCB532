@@ -14,8 +14,8 @@ class AddProductToCartRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'exists:users,id',
             'product_id' => 'exists:products,id',
+            'quantity' => 'required|integer|min:1',
         ];
     }
 }
