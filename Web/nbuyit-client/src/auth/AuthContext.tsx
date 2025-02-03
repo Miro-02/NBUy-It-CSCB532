@@ -93,7 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         logout,
         login
         }}>
-              {children}
+            {children}
         </AuthContext.Provider>
     );
 };

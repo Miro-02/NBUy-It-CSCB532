@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import CategoriesList from "./CategoriesList";
 import AddToCartButton from "./AddToCartButton";
 import NoImageProduct from "../assets/product-no-image.webp";
+import axios from "axios";
 
 export default function ProductCard({ product }: { product: any }) {
   const getPopularityLabel = () => {
@@ -10,6 +11,29 @@ export default function ProductCard({ product }: { product: any }) {
     return null;
   };
 
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      const token = localStorage.getItem("authToken");
+
+      const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/cart`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Access-Control-Allow-Credentials': true,
+        },
+        body: JSON.stringify({
+          product_id: product.id,
+        }),
+      });
+
+      console.log("Product added to cart!");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
+  };
+  
   return (
     <article className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden flex flex-col h-full">
       <Link to={`/products/${product.id}`} className="flex flex-col h-full">
@@ -57,7 +81,7 @@ export default function ProductCard({ product }: { product: any }) {
             <p className="text-lg font-bold text-[#093f87]">
               {product.price ? `${product.price} лв.` : "N/A"}
             </p>
-            <AddToCartButton />
+            <AddToCartButton onClick={handleAddToCart}/>
           </div>
         </div>
       </Link>

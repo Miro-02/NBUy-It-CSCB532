@@ -1,4 +1,8 @@
-export default function AddToCartButton() {
+interface AddToCartButtonProps {
+  onClick: (e: React.MouseEvent) => Promise<void>;
+}
+
+export default function AddToCartButton({ onClick }: AddToCartButtonProps) {
     return (
       <button className="flex items-center space-x-2 rounded-lg bg-[#093f87] px-4 py-2 text-white hover:bg-[#082f6a] transition-colors duration-200">
         <svg 
