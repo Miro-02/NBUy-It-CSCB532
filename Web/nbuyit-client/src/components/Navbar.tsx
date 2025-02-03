@@ -57,16 +57,25 @@ function Navbar() {
                             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 divide-y divide-gray-100">
                                 {isAuthenticated ? (
                                     <div className="px-4 py-3 text-sm text-gray-700">
-                                        <p className="font-medium">Welcome, {user?.name}</p>
-                                        <button
-                                            onClick={() => {
-                                                logout();
-                                                setShowDropdown(false);
-                                            }}
-                                            className="w-full mt-2 text-left text-red-600 hover:text-red-800"
-                                        >
-                                            Logout
-                                        </button>
+                                        <p className="font-medium mb-2">Welcome, {user?.name}</p>
+                                        <div className="space-y-2">
+                                            <Link
+                                                to="/profile"
+                                                onClick={() => setShowDropdown(false)}
+                                                className="block w-full px-2 py-1 text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                                            >
+                                                My Profile
+                                            </Link>
+                                            <button
+                                                onClick={() => {
+                                                    logout();
+                                                    setShowDropdown(false);
+                                                }}
+                                                className="block w-full px-2 py-1 text-left text-red-600 hover:bg-red-50 rounded transition-colors"
+                                            >
+                                                Logout
+                                            </button>
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className="py-1">
