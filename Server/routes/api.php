@@ -11,7 +11,7 @@ use App\Http\Controllers\OrderProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AuthController;
 
-Route::post('/register', [AuthController::class, 'register']);
+/* Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -71,4 +71,49 @@ Route::delete('/order-products/{orderProduct}', [OrderProductController::class, 
 Route::post('/cart', [CartController::class, 'addProductToCart']);
 Route::delete('/cart/{id}', [CartController::class, 'removeProductFromCart']);
 Route::get('/cart', [CartController::class, 'getUserCart']);
-// });
+// }); */
+
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+// Public routes
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
+Route::get('/product-categories', [ProductCategoryController::class, 'index']);
+Route::get('/product-categories/{id}', [ProductCategoryController::class, 'show']);
+
+// Authenticated routes
+Route::middleware('auth:sanctum')->group(function () {
+    // Common user routes
+    Route::get('/user', [AuthController::class, 'user']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Cart routes (buyer-specific)
+    Route::middleware('role:buyer')->group(function () {
+        Route::post('/cart', [CartController::class, 'addProductToCart']);
+        Route::delete('/cart/{id}', [CartController::class, 'removeProductFromCart']);
+        Route::get('/cart', [CartController::class, 'getUserCart']);
+    });
+
+    // Admin-only routes
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin', fn () => response()->json(['message' => 'Admin access granted']));
+        Route::apiResource('/users', UserController::class)->except(['create', 'edit']);
+        Route::put('/users/{user}/update-role', [UserController::class, 'updateRole']);
+        Route::apiResource('/roles', RoleController::class)->only(['index', 'show']);
+    });
+
+    // Seller routes
+    Route::middleware('role:seller')->group(function () {
+        Route::apiResource('/products', ProductController::class)->except(['index', 'show']);
+        Route::apiResource('/product-categories', ProductCategoryController::class)->except(['index', 'show']);
+    });
+
+    // Order manager routes
+    Route::middleware('role:order-manager')->group(function () {
+        Route::apiResource('/order-statuses', OrderStatusController::class);
+        Route::apiResource('/order-product-statuses', OrderProductStatusController::class);
+        Route::apiResource('/order-products', OrderProductController::class);
+    });
+});
