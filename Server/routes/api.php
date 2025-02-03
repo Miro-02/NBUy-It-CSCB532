@@ -7,7 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\OrderStatusController;
 use App\Http\Controllers\OrderProductStatusController;
-use App\Http\Controllers\OrderProductController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AuthController;
 use Spatie\Permission\Middlewares\RoleMiddleware;
@@ -53,23 +53,19 @@ Route::get('/test', function () {
 })->middleware(['auth:sanctum', 'role:buyer', 'role:seller', 'role:admin', 'role:order-manager']);
 
 
-// ProductController routes
-Route::post('/products', [ProductController::class, 'store']);
-Route::put('/products/{id}', [ProductController::class, 'update']);
-Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+Route::middleware(['auth:sanctum', 'role:admin|order-manager'])->group(function () {
+    // ProductController routes
+    Route::post('/products', [ProductController::class, 'store']);
+    Route::put('/products/{id}', [ProductController::class, 'update']);
+    Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 
-// ProductCategoryController routes
-Route::post('/product-categories', [ProductCategoryController::class, 'store']);
-Route::put('/product-categories/{id}', [ProductCategoryController::class, 'update']);
-Route::delete('/product-categories/{id}', [ProductCategoryController::class, 'destroy']);
+    // ProductCategoryController routes
+    Route::post('/product-categories', [ProductCategoryController::class, 'store']);
+    Route::put('/product-categories/{id}', [ProductCategoryController::class, 'update']);
+    Route::delete('/product-categories/{id}', [ProductCategoryController::class, 'destroy']);
 
-Route::put('/order/{orderProduct}', [OrderController::class, 'update']);
-Route::delete('/order/{orderProduct}', [OrderController::class, 'destroy']);
-Route::get('/order', [OrderController::class, 'index']);
-Route::get('/order/{id}', [OrderController::class, 'show']);
-
-
-
-
-
-// });
+    Route::put('/order/{orderProduct}', [OrderController::class, 'update']);
+    Route::delete('/order/{orderProduct}', [OrderController::class, 'destroy']);
+    Route::get('/order', [OrderController::class, 'index']);
+    Route::get('/order/{id}', [OrderController::class, 'show']);
+});

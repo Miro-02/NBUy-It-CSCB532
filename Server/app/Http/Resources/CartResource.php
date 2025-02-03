@@ -11,7 +11,7 @@ class CartResource extends JsonResource
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
-            'product' => new ProductResource($this->whenLoaded('product')),
+            'products' => ProductResource::collection($this->whenLoaded('products')), // Changed here to handle multiple products
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
