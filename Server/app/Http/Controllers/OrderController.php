@@ -6,6 +6,7 @@ use App\Http\Requests\OrderRequest;
 use App\Models\Order;
 use App\Models\OrderProduct;
 use App\Models\Cart;
+use App\Models\OrderProductStatus;
 use App\Models\OrderStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,12 +15,12 @@ class OrderController extends Controller
 {
     public function store(Request $request)
     {
-        $user = $request->user()->id;
+        $user = $request->user();
         
         // Get user's cart items
-        $cartItems = Cart::where('user_id', $user->id)->get();
+        $cart = Cart::where('user_id', $user->id)->get();
         
-        if ($cartItems->isEmpty()) {
+        if ($cart->isEmpty()) {
             return response()->json(['message' => 'Cart is empty'], 400);
         }
 
@@ -32,18 +33,25 @@ class OrderController extends Controller
             'status_id' => $status->id,
         ]);
 
+        $orderProductsStatus = OrderProductStatus::where('name', 'pending')->firstOrFail();
+
         // Create order products from cart items
-        foreach ($cartItems as $cartItem) {
+        /* $products = $carts->products;
+        dump($products); */
+        dump($cart[0]->products[0]);
+        foreach ($cart[0]->products as $product) {
             OrderProduct::create([
-                'orders_order_products' => $order->id,
-                'product_id' => $cartItem->product_id,
-                'quantity' => $cartItem->quantity,
-                // Add any additional fields needed for order products
+                'product_id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'seller_id' => $product->seller_id,
+                'quantity' => $product->quantity,
+                'popularity' => $product->popularity,
+                'order_product_status_id' => $orderProductsStatus->id,
             ]);
         }
 
-        // Clear the user's cart
-        Cart::where('user_id', $user->id)->delete();
+        $cart->products->detach();
 
         return response()->json($order->load('orderProducts'), 201);
     }
