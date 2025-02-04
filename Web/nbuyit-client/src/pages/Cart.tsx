@@ -50,6 +50,11 @@ function Cart() {
             });
             const receivedData = response.data.data?.products;
             const itemsArray = Array.isArray(receivedData) ? receivedData : [];
+           /*  itemsArray.forEach(item => {
+                console.log(`Product ID: ${item.id}, Images:`, item.product_images);
+            }); */
+            console.log(receivedData);
+            
             setCartItems(itemsArray);
         } catch (error) {
             setError('Failed to load cart');

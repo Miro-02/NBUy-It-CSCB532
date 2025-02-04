@@ -160,4 +160,23 @@ class ProductController extends Controller
 
         return response()->noContent();
     }
+
+    public function myProducts(Request $request)
+    {
+        $user = $request->user();
+        $products = Product::where('seller_id', $user->id)
+            ->with(['productCategories', 'productImages'])
+            ->get();
+
+        return response()->json($products);
+    }
+
+    public function myProduct(Request $request, $id)
+    {
+        $user = $request->user();
+        $product = Product::where('seller_id', $user->id)
+            ->with(['productCategories', 'productImages'])
+            ->findOrFail($id);
+        return response()->json($product);
+    }
 }
