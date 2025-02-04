@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
+import { Link } from 'react-router';
 
 interface Order {
   id: number;
@@ -82,6 +83,7 @@ function Orders() {
               }`}>
                 {order.status.name}
               </span>
+              <Link to={`/my-orders/${order.id}`}>View Details</Link>
             </div>
             
             {order.order_products.length > 0 ? (
@@ -92,13 +94,13 @@ function Orders() {
                     <div key={product.id} className="flex justify-between items-center">
                       <span>Product #{product.product_id}</span>
                       <div className="text-gray-600">
-                      <span>{product.quantity} x ${Number(product.price).toFixed(2)}</span>
-                      <span className="ml-4">${(product.quantity * Number(product.price)).toFixed(2)}</span>
+                      <span>{product.quantity} x {Number(product.price).toFixed(2)} лв.</span>
+                      <span className="ml-4">{(product.quantity * Number(product.price)).toFixed(2)} лв.</span>
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
+              </div>  
             ) : (
               <p className="text-gray-500 text-sm">No products in this order</p>
             )}

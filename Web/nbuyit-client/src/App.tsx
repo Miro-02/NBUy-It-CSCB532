@@ -14,6 +14,7 @@ import BecomeSeller from './pages/BecomeSeller';
 import SignUp from './pages/SignUp';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import Orders from './pages/Orders';
+import Order from './pages/Order';
 
 function App() {
   const { isAuthenticated, isSeller } = useAuth();
@@ -67,8 +68,12 @@ function App() {
             element={isAuthenticated && !isSeller ? <BecomeSeller /> : <Navigate to='/login' />}
           />
           <Route
-            path='/orders'
+            path='/my-orders'
             element={isAuthenticated ? <Orders /> : <Navigate to='/login' />}
+          />
+          <Route
+            path='/my-orders/:id'
+            element={isAuthenticated ? <Order /> : <Navigate to='/login' />}
           />
           <Route 
             path='*' 
