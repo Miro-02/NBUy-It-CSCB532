@@ -4,7 +4,16 @@ import { Link } from 'react-router';
 import { useAuth } from '../auth/AuthContext';
 import UserImage from '../assets/user-picture.jpg';
 import axios from 'axios';
-import { ad } from 'react-router/dist/production/route-data-DuV3tXo2';
+import { z } from 'zod';
+
+const phoneSchema = z.string()
+  .min(6, "Phone number must be at least 8 characters")
+  .max(11, "Phone number too long")
+  .regex(/^[+]?[0-9\s-]+$/, "Invalid phone number format");
+
+const addressSchema = z.string()
+  .min(5, "Address must be at least 5 characters")
+  .max(50, "Address too long");
 
 function ProfileCard() {
     const { user, isSeller, updateUser } = useAuth();
@@ -20,52 +29,58 @@ function ProfileCard() {
     const [addressError, setAddressError] = useState<string | null>(null);
 
     const handlePhoneChange = async () => {
+        setPhoneError(null);
         try {
+            phoneSchema.parse(newPhone);
             const token = localStorage.getItem('authToken');
-            const response = await axios.put(
+            await axios.put(
                 `${import.meta.env.VITE_SERVER_URL}/api/user/contact-details`, 
                 { 
                     phone: newPhone,
                     address: user?.address
                 },
                 {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
-
             updateUser({ phone: newPhone });
             setIsEditingPhone(false);
         } catch (error) {
-            console.error('Error updating phone:', error);
-            setNewPhone(user?.phone || '');
-            setPhoneError('Failed to update phone number');
+            if (error instanceof z.ZodError) {
+                setPhoneError(error.errors[0].message);
+            } else {
+                console.error('Error updating phone:', error);
+                setNewPhone(user?.phone || '');
+                setPhoneError('Failed to update phone number');
+            }
         }
     };
 
     const handleAddressChange = async () => {
+        setAddressError(null);
         try {
+            addressSchema.parse(newAddress);
             const token = localStorage.getItem('authToken');
-            const response = await axios.put(
+            await axios.put(
                 `${import.meta.env.VITE_SERVER_URL}/api/user/contact-details`, 
                 { 
                     address: newAddress,
-                    phone:  user?.phone
+                    phone: user?.phone
                 },
                 {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
-
             updateUser({ address: newAddress });
             setIsEditingAddress(false);
         } catch (error) {
-            console.error('Error updating address:', error);
-            setNewAddress(user?.address || '');
-            setAddressError('Failed to update address');
+            if (error instanceof z.ZodError) {
+                setAddressError(error.errors[0].message);
+            } else {
+                console.error('Error updating address:', error);
+                setNewAddress(user?.address || '');
+                setAddressError('Failed to update address');
+            }
         }
     };
     
@@ -113,7 +128,6 @@ function ProfileCard() {
                                     className="w-full px-4 py-2 rounded-lg border-2 border-blue-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                                     autoFocus
                                 />
-                                {phoneError && <div className="text-red-500 text-sm mt-1">{phoneError}</div>}
                                 <button
                                     onClick={handlePhoneChange}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -127,7 +141,10 @@ function ProfileCard() {
                                     Phone: {user?.phone || 'N/A'}
                                 </span>
                                 <button
-                                    onClick={() => setIsEditingPhone(true)}
+                                    onClick={() => {
+                                        setIsEditingPhone(true);
+                                        setPhoneError(null);
+                                    }}
                                     className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
                                 >
                                     <svg
@@ -160,9 +177,8 @@ function ProfileCard() {
                                     className="w-full px-4 py-2 rounded-lg border-2 border-blue-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                                     autoFocus
                                 />
-                                {addressError && <div className="text-red-500 text-sm mt-1">{addressError}</div>}
                                 <button
-                                    onClick={() =>handleAddressChange}
+                                    onClick={handleAddressChange}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                                 >
                                     Save
@@ -175,7 +191,10 @@ function ProfileCard() {
                                 </span>
 
                                 <button
-                                    onClick={() => setIsEditingAddress(true)}
+                                    onClick={() => {
+                                        setIsEditingAddress(true);
+                                        setAddressError(null);
+                                    }}
                                     className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
                                 >
                                     <svg
@@ -197,6 +216,18 @@ function ProfileCard() {
                             </div>
                         )}
                     </div>
+                    {phoneError && (
+                        <div className="text-red-500 text-sm mt-1 animate-fade-in">
+                            {phoneError}
+                        </div>
+                    )}
+
+                    {addressError && (
+                        <div className="text-red-500 text-sm mt-1 animate-fade-in">
+                            {addressError}
+                        </div>
+                    )}
+
                 </div>
 
                 {userRole === 'BUYER' && (
