@@ -54,7 +54,7 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'User is now a seller.',
                 'user' => $user
-            ]);
+            , 200]);
         }
         return response()->json([
             'message' => 'User already has a different role.',
