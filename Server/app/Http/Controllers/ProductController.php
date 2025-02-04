@@ -32,6 +32,7 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request)
     {
         $data = $request->validated();
+        $data['seller_id'] = $request->user()->id;
         $product = $this->productService->createProduct($data);
         if (isset($data['product_category_ids'])) {
             $product->productCategories()->sync($data['product_category_ids']);

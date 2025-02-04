@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\OrderProduct;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
@@ -74,8 +75,8 @@ Route::middleware(['auth:sanctum', 'role:admin|order-manager|seller'])->group(fu
 });
 
 Route::middleware(['auth:sanctum', 'role:admin|order-manager'])->group(function () {
-    Route::put('/order/{orderProduct}', [OrderController::class, 'update']);
-    Route::delete('/order/{orderProduct}', [OrderController::class, 'destroy']);
     Route::get('/order', [OrderController::class, 'index']);
     Route::get('/order/{id}', [OrderController::class, 'show']);
+    Route::post('/order/{id}/advance-status', [OrderController::class, 'advanceStatus']);
+    Route::post('/order-product/{id}/advance-status', [OrderProductController::class, 'advanceStatus']);
 });

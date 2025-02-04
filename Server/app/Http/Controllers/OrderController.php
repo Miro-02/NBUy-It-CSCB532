@@ -91,22 +91,45 @@ class OrderController extends Controller
         return response()->json($order);
     }
 
-    public function update(Request $request, OrderProduct $orderProduct)
+    public function advanceStatus($id)
     {
-        $validated = $request->validate([
-            'status_id' => 'sometimes|exists:order_statuses,id',
-            'quantity' => 'sometimes|integer|min:1',
-        ]);
+        $order = Order::with(['orderProducts.status', 'status'])
+            ->findOrFail($id);
 
-        $orderProduct->update($validated);
+        if (!$order) {
+            return response()->json(['error' => 'Order not found'], 404);
+        }
 
-        return response()->json($orderProduct);
+        // Get current order status
+        $currentStatus = $order->status->slug;
+        dump($order->orderProducts);
+        // Check if all order products have the same status as the order
+        /* $allSameStatus = collect($order->orderProducts)
+            ->every(fn($product) => $product->status->slug === $currentStatus);
+
+        if (!$allSameStatus) {
+            return response()->json(['error' => 'Not all order products have the same status'], 400);
+        }
+
+        // Define the status transition flow
+        $statusFlow = [
+            'pending' => 'confirmed',
+            'confirmed' => 'processing',
+            'processing' => 'shipped',
+            'shipped' => 'delivered',
+        ]; */
+
+        // Check if there's a next status available
+        /* if (isset($statusFlow[$currentStatus])) {
+            // Update the order status
+            $newStatus = OrderStatus::where('slug', $statusFlow[$currentStatus])->firstOrFail();
+            $order->status()->associate($newStatus);
+            $order->save();
+
+            return response()->json(['message' => "Order advanced to {$newStatus->slug}"], 200);
+        }
+
+        return response()->json(['error' => 'Order cannot be advanced further'], 400); */
     }
 
-    public function destroy(OrderProduct $orderProduct)
-    {
-        $orderProduct->delete();
-
-        return response()->json(['message' => 'Order product deleted successfully']);
-    }
 }
