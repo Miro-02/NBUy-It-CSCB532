@@ -16,6 +16,7 @@ import { AuthProvider, useAuth } from './auth/AuthContext';
 import Orders from './pages/Orders';
 import Order from './pages/Order';
 import MyInventory from './pages/MyInventory';
+import { EditProduct } from './pages/EditProduct';
 
 function App() {
   const { isAuthenticated, isSeller } = useAuth();
@@ -40,6 +41,11 @@ function App() {
           <Route 
             path='/products/:id' 
             element={<ProductDetails />} 
+          />
+
+          <Route
+            path='/products/:id/edit'
+            element={isAuthenticated ? <EditProduct/> : <Navigate to='/login' />}
           />
           
           <Route

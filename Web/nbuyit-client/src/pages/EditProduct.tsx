@@ -3,20 +3,25 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 const productSchema = z.object({
-    name: z.string().min(3, "Name must be at least 3 characters"),
-    description: z.string().min(10, "Description must be at least 10 characters"),
-    categories: z.array(z.number()).min(1, "Please select at least one category"),
-    price: z.number().min(0.01, {message: "Price must be greater than 0"}),
-    quantity: z.number().min(0, {message: "Quantity can't be negative"}).int(),
-    images: z.array(z.instanceof(File)).min(1, "At least one image required")
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  categories: z.array(z.number()).min(1, "Please select at least one category"),
+  price: z.number().min(0.01, { message: "Price must be greater than 0" }),
+  quantity: z.number().min(0, { message: "Quantity can't be negative" }).int(),
+  images: z.array(z.instanceof(File)).optional()
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
 
-export function AddProduct() {
+export function EditProduct() {
+    const { id } = useParams<{ id: string }>();
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [deletedExistingImages, setDeletedExistingImages] = useState<string[]>([]);
+  const [initialLoad, setInitialLoad] = useState(true);
+  
   const {
     register,
     handleSubmit,
@@ -33,35 +38,45 @@ export function AddProduct() {
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get<{ data: Array<{ id: number; name: string }> }>(
-          `${import.meta.env.VITE_SERVER_URL}/api/product-categories`
-        );
-        setCategories(response.data.data);
-      } catch (err) {
-        setCategoriesError(
-          axios.isAxiosError(err)
-            ? err.response?.data?.message || err.message
-            : 'Failed to load categories'
-        );
-      } finally {
-        setLoadingCategories(false);
-      }
-    };
-  
-    fetchCategories();
-  }, []);
-
   const selectedImages = watch("images") || [];
   const selectedCategories = watch("categories") || [];
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const productResponse = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/products/${id}`);
+        const productData = productResponse.data.data;
+
+        const categoriesResponse = await axios.get<{ data: Array<{ id: number; name: string }> }>(
+            `${import.meta.env.VITE_SERVER_URL}/api/product-categories`
+        );
+
+        setCategories(categoriesResponse.data.data);
+        setExistingImages(productData.images || []);
+
+        reset({
+          name: productData.name,
+          description: productData.description,
+          price: productData.price,
+          quantity: productData.quantity,
+          categories: productData.categories.map((c: any) => c.id),
+          images: []
+        });
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoadingCategories(false);
+        setInitialLoad(false);
+      }
+    };
+
+    fetchData();
+  }, [id, reset]);
 
   const handleCategoryChange = (categoryId: number) => {
     const newCategories = selectedCategories.includes(categoryId)
       ? selectedCategories.filter(id => id !== categoryId)
       : [...selectedCategories, categoryId];
-      
     setValue("categories", newCategories);
   };
 
@@ -75,37 +90,58 @@ export function AddProduct() {
     setValue("images", updatedImages);
   };
 
-  const onSubmit = (data: ProductFormData) => {
-    const formData = new FormData();
-    
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    formData.append("price", data.price.toString());
-    formData.append("quantity", data.quantity.toString());
+  const removeExistingImage = (index: number) => {
+    const updatedImages = [...existingImages];
+    const removedImage = updatedImages.splice(index, 1)[0];
+    setExistingImages(updatedImages);
+    setDeletedExistingImages([...deletedExistingImages, removedImage]);
+  };
 
-    data.categories.forEach(id => 
-      formData.append("product_category_ids[]", id.toString())
-    );
+  const onSubmit = async (data: ProductFormData) => {
+    try {
+      if (existingImages.length + data.images.length === 0) {
+        alert("Please keep at least one image or upload new ones");
+        return;
+      }
 
-    data.images.forEach((file, index) => {
-      formData.append(`product_images[${index}]`, file);
-    });
-  
-    axios.post(`${import.meta.env.VITE_SERVER_URL}/api/products`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-      },
-    })
-    .then(response => {
-      console.log('Product created:', response.data);
-      reset();
-    })
-    .catch(error => {
-      console.error('Error creating product:', error);
-    });
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("price", data.price.toString());
+      formData.append("quantity", data.quantity.toString());
 
-    navigate('/');
+      data.categories.forEach(id => 
+        formData.append("product_category_ids[]", id.toString())
+      );
+
+      existingImages.forEach(url => 
+        formData.append("existing_images[]", url)
+      );
+
+      deletedExistingImages.forEach(url => 
+        formData.append("removed_images[]", url)
+      );
+
+      data.images?.forEach((file, index) => {
+        formData.append(`new_images[${index}]`, file);
+      });
+
+      await axios.put(
+        `${import.meta.env.VITE_SERVER_URL}/api/products/${id}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          },
+        }
+      );
+
+      navigate(`/products/${id}`);
+    } catch (error) {
+      console.error("Error updating product:", error);
+      alert("Failed to update product. Please try again.");
+    }
   };
 
   const renderCategories = () => {
@@ -154,10 +190,14 @@ export function AddProduct() {
     );
   };
 
+  if (initialLoad) {
+    return <div className="min-h-screen bg-gray-50 py-8">Loading...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4 max-w-2xl">
-        <h1 className="text-4xl font-bold text-[#093f87] mb-8">Add New Product</h1>
+        <h1 className="text-4xl font-bold text-[#093f87] mb-8">Edit Product</h1>
         
         <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 rounded-xl shadow-md">
           <div className="space-y-6">
@@ -238,12 +278,10 @@ export function AddProduct() {
                 )}
               </div>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Product Images
               </label>
-              
               <div className="flex flex-col gap-4">
                 <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#093f87] transition-colors">
                   <input
@@ -268,46 +306,75 @@ export function AddProduct() {
                       />
                     </svg>
                     <span className="text-sm text-gray-600">
-                      Click to upload images
+                      Click to upload new images
                     </span>
                   </div>
                 </label>
 
-                {selectedImages.length > 0 && (
-                  <div className="grid grid-cols-3 gap-2">
-                    {selectedImages.map((file, index) => (
-                      <div key={index} className="relative group">
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={file.name}
-                          className="h-24 w-full object-cover rounded-lg"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                <div className="grid grid-cols-3 gap-2">
+                  {existingImages.map((url, index) => (
+                    <div key={url} className="relative group">
+                      <img
+                        src={url}
+                        alt={`Existing ${index}`}
+                        className="h-24 w-full object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeExistingImage(index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
                         >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+
+                  {selectedImages.map((file, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={file.name}
+                        className="h-24 w-full object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
-              {errors.images && (
-                <p className="text-red-500 text-sm mt-1">{errors.images.message}</p>
+              {(errors.images || (existingImages.length === 0 && selectedImages.length === 0)) && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.images?.message || "At least one image is required"}
+                </p>
               )}
             </div>
 
@@ -315,11 +382,11 @@ export function AddProduct() {
               type="submit"
               className="w-full bg-[#093f87] text-white py-3 rounded-lg hover:bg-[#082f6a] transition-colors"
             >
-              Add Product
+              Update Product
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-};
+}

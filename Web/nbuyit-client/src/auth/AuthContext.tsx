@@ -23,6 +23,7 @@ interface AuthContextType {
     isSeller: boolean;
     logout: () => void;
     login: (token: string) => Promise<void>;
+    updateUser: (updates: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -32,6 +33,7 @@ const AuthContext = createContext<AuthContextType>({
     isSeller: false,
     logout: () => {},
     login: async () => {},
+    updateUser: () => {},
 });
 
 interface AuthProviderProps {
@@ -93,6 +95,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsAuthenticated(false);
     };
 
+    const updateUser = (updates: Partial<User>) => {
+        setUser(prevUser => {
+            if (!prevUser) return null;
+            return { ...prevUser, ...updates };
+        });
+    };
+
     const isSeller = user?.roles.some(role => role.name === 'seller') ?? false;
 
     return (
@@ -102,7 +111,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isLoading,
         isSeller,
         logout,
-        login
+        login,
+        updateUser
         }}>
             {children}
         </AuthContext.Provider>
