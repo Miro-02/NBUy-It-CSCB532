@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserRequest;
+use App\Http\Requests\UpdateUserContactDetailsRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\UserUpdateRoleRequest;
 use App\Models\User;
@@ -18,7 +18,7 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    public function store(UserRequest $request)
+    /* public function store(UserRequest $request)
     {
         $user = $this->userService->createUser($request->validated());
         return new UserResource($user);
@@ -28,7 +28,7 @@ class UserController extends Controller
     {
         $this->userService->updateUser($user, $request->validated());
         return new UserResource($user);
-    }
+    } */
 
     public function destroy(User $user)
     {
@@ -38,7 +38,7 @@ class UserController extends Controller
 
     public function updateRole(UserUpdateRoleRequest $request, User $user)
     {
-        $data =  $request->validated();
+        $data = $request->validated();
         $user->role_id = $data['role_id'];
         $user->save();
         return response()->json(null, 200);
@@ -47,23 +47,34 @@ class UserController extends Controller
     public function becomeSeller(Request $request)
     {
         $user = $request->user();
-    
+
         if ($user->hasRole('buyer')) {
             $user->removeRole('buyer');
             $user->assignRole('seller');
             return response()->json([
                 'message' => 'User is now a seller.',
                 'user' => $user
-            , 200]);
+                ,
+                200
+            ]);
         }
         return response()->json([
             'message' => 'User already has a different role.',
         ], 400);
     }
 
-    public function updateContactDetails(Request $request){
+    public function updateContactDetails(UpdateUserContactDetailsRequest $request)
+    {
         $user = $request->user();
-
-        
+    
+        $data = $request->validated();
+    
+        $user->update($data);
+    
+        return response()->json([
+            'message' => 'User updated.'
+        ], 200);
     }
+    
+    
 }
