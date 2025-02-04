@@ -3,7 +3,7 @@ import NoImageProduct from "../assets/product-no-image.webp";
 interface CartItemProps {
     id: number;
     name: string;
-    product_images: Object[];
+    product_images: Array<{ url: string }>;
     price: string;
     quantity: number;
     onIncrement: any;
@@ -12,11 +12,13 @@ interface CartItemProps {
 }
 
 export function CartItem({ id, name, product_images, price, quantity, onIncrement, onDecrement, onRemove }: CartItemProps) {
+    console.log(product_images);
+
     return (
         <div className="bg-white rounded-xl shadow-sm p-4 flex gap-4 hover:shadow-md transition-shadow">
             <div className="w-24 h-24 flex-shrink-0">
                 <img
-                    src={product_images || NoImageProduct}
+                    src={product_images?.[0]?.url || NoImageProduct}
                     alt={name}
                     className="w-full h-full object-cover rounded-lg"
                 />

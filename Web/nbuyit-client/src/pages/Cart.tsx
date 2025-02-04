@@ -4,12 +4,33 @@ import { CheckoutCard } from '../components/CheckoutCard';
 import axios from 'axios';
 import { Link } from 'react-router';
 
+interface ProductImage {
+    id: number;
+    path: string;
+    url: string;
+    original_name: string;
+    created_at: string;
+    updated_at: string;
+}
+
 interface CartItemType {
     id: number;
     name: string;
     price: string;
     quantity: number;
-    product_images: Object[];
+    product_images: ProductImage[];
+    product_categories: Array<{
+      id: number;
+      name: string;
+      slug: string;
+      created_at: string;
+      updated_at: string;
+    }>;
+    description: string;
+    seller_id: number;
+    popularity: number;
+    created_at: string;
+    updated_at: string;
 }
 
 function Cart() {
@@ -144,6 +165,7 @@ function Cart() {
                             <CartItem
                                 key={item.id}
                                 {...item}
+                                product_images={item.product_images || []}
                                 onIncrement={handleIncrement}
                                 onDecrement={handleDecrement}
                                 onRemove={handleRemove}
