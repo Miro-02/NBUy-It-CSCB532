@@ -107,20 +107,20 @@ function Home() {
           </div>
 
           <div className="flex gap-2 overflow-x-auto pb-2">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-full capitalize ${
-                  selectedCategory === category
-                    ? 'bg-[#093f87] text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`flex-shrink-0 px-4 py-2 rounded-full capitalize ${
+                selectedCategory === category
+                  ? 'bg-[#093f87] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <div className="flex items-center gap-2">
               <label className="text-sm text-gray-600">Sort by:</label>
