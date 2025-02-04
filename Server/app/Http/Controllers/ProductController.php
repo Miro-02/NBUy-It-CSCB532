@@ -159,7 +159,7 @@ class ProductController extends Controller
         // Delete the product
         $this->productService->deleteProduct($product);
 
-        return response()->noContent();
+        return response()->json(null, 204);
     }
 
     public function myProducts(Request $request)

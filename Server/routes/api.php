@@ -41,8 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/my-orders', [OrderController::class, 'myOrders']);
     Route::get('/my-orders/{id}', [OrderController::class, 'myOrder']);
 
-    Route::put('/user', [UserController::class, 'updateCurrentUser']);
-});
+    Route::put('/user/contact-details', [UserController::class, 'updateContactDetails']);});
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::post('/users', [UserController::class, 'store']);

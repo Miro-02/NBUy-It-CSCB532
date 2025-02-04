@@ -60,4 +60,10 @@ class UserController extends Controller
             'message' => 'User already has a different role.',
         ], 400);
     }
+
+    public function updateContactDetails(Request $request){
+        $user = $request->user();
+
+        
+    }
 }
