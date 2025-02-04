@@ -5,10 +5,10 @@ import { useAuth } from '../auth/AuthContext';
 import { useClickAway } from 'react-use';
 
 function Navbar() {
-    const { isAuthenticated, user, logout, isLoading } = useAuth();
+    const { isAuthenticated, user, logout, isLoading, isSeller } = useAuth();
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef(null);
-    
+
     useClickAway(dropdownRef, () => {
         setShowDropdown(false);
     });
@@ -66,6 +66,15 @@ function Navbar() {
                                             >
                                                 My Profile
                                             </Link>
+                                            {isSeller && (
+                                               <Link
+                                               to="/my-inventory"
+                                               onClick={() => setShowDropdown(false)}
+                                               className="block w-full px-2 py-1 text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                                                >
+                                                    My Inventory
+                                                </Link> 
+                                            )}
                                             <Link
                                                 to="/my-orders"
                                                 onClick={() => setShowDropdown(false)}
