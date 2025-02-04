@@ -40,6 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/order', [OrderController::class, 'store']);
     Route::get('/my-orders', [OrderController::class, 'myOrders']);
     Route::get('/my-orders/{id}', [OrderController::class, 'myOrder']);
+
+    Route::put('/user', [UserController::class, 'updateCurrentUser']);
 });
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
@@ -77,6 +79,6 @@ Route::middleware(['auth:sanctum', 'role:admin|order-manager|seller'])->group(fu
 Route::middleware(['auth:sanctum', 'role:admin|order-manager'])->group(function () {
     Route::get('/order', [OrderController::class, 'index']);
     Route::get('/order/{id}', [OrderController::class, 'show']);
-    Route::post('/order/{id}/advance-status', [OrderController::class, 'advanceStatus']);
-    Route::post('/order-product/{id}/advance-status', [OrderProductController::class, 'advanceStatus']);
+    /* Route::post('/order/{id}/advance-status', [OrderController::class, 'advanceStatus']);
+    Route::post('/order-product/{id}/advance-status', [OrderProductController::class, 'advanceStatus']); */
 });

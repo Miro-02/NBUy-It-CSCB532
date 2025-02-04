@@ -91,7 +91,7 @@ class OrderController extends Controller
         return response()->json($order);
     }
 
-    public function advanceStatus($id)
+/*     public function advanceStatus($id)
     {
         $order = Order::with(['orderProducts.status', 'status'])
             ->findOrFail($id);
@@ -104,7 +104,7 @@ class OrderController extends Controller
         $currentStatus = $order->status->slug;
         dump($order->orderProducts);
         // Check if all order products have the same status as the order
-        /* $allSameStatus = collect($order->orderProducts)
+        $allSameStatus = collect($order->orderProducts)
             ->every(fn($product) => $product->status->slug === $currentStatus);
 
         if (!$allSameStatus) {
@@ -117,10 +117,10 @@ class OrderController extends Controller
             'confirmed' => 'processing',
             'processing' => 'shipped',
             'shipped' => 'delivered',
-        ]; */
+        ];
 
         // Check if there's a next status available
-        /* if (isset($statusFlow[$currentStatus])) {
+        if (isset($statusFlow[$currentStatus])) {
             // Update the order status
             $newStatus = OrderStatus::where('slug', $statusFlow[$currentStatus])->firstOrFail();
             $order->status()->associate($newStatus);
@@ -129,7 +129,7 @@ class OrderController extends Controller
             return response()->json(['message' => "Order advanced to {$newStatus->slug}"], 200);
         }
 
-        return response()->json(['error' => 'Order cannot be advanced further'], 400); */
-    }
+        return response()->json(['error' => 'Order cannot be advanced further'], 400);
+    } */
 
 }

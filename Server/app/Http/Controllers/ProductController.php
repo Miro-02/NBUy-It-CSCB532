@@ -169,7 +169,7 @@ class ProductController extends Controller
             ->with(['productCategories', 'productImages'])
             ->get();
 
-        return response()->json($products);
+        return response()->json(ProductResource::collection($products));
     }
 
     public function myProduct(Request $request, $id)
@@ -178,6 +178,6 @@ class ProductController extends Controller
         $product = Product::where('seller_id', $user->id)
             ->with(['productCategories', 'productImages'])
             ->findOrFail($id);
-        return response()->json($product);
+        return response()->json(new ProductResource($product));
     }
 }
