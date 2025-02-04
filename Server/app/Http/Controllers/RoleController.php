@@ -7,7 +7,7 @@ use App\Http\Resources\RoleResource;
 use App\Services\RoleService;
 use Illuminate\Http\Request;
 
-class RoleController extends Controller
+class RoleController
 {
     protected $roleService;
 

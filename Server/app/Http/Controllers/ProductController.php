@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
+use App\Models\OrderProduct;
+use App\Models\OrderProductStatus;
 use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
@@ -14,7 +16,8 @@ use App\Models\FileRecord;
 use File;
 use Illuminate\Support\Facades\DB;
 
-class ProductController extends Controller
+class ProductController 
+
 {
     protected $productService;
 
