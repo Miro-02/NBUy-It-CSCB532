@@ -53,7 +53,7 @@ Route::get('/test', function () {
 })->middleware(['auth:sanctum', 'role:buyer', 'role:seller', 'role:admin', 'role:order-manager']);
 
 
-Route::middleware(['auth:sanctum', 'role:admin|order-manager'])->group(function () {
+Route::middleware(['auth:sanctum', 'role:admin|order-manager|seller'])->group(function () {
     // ProductController routes
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{id}', [ProductController::class, 'update']);
@@ -64,6 +64,9 @@ Route::middleware(['auth:sanctum', 'role:admin|order-manager'])->group(function 
     Route::put('/product-categories/{id}', [ProductCategoryController::class, 'update']);
     Route::delete('/product-categories/{id}', [ProductCategoryController::class, 'destroy']);
 
+});
+
+Route::middleware(['auth:sanctum', 'role:admin|order-manager'])->group(function () {
     Route::put('/order/{orderProduct}', [OrderController::class, 'update']);
     Route::delete('/order/{orderProduct}', [OrderController::class, 'destroy']);
     Route::get('/order', [OrderController::class, 'index']);
