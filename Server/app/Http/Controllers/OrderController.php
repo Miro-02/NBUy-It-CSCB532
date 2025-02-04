@@ -16,10 +16,10 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $user = $request->user();
-        
+
         // Get user's cart items
         $cart = Cart::where('user_id', $user->id)->first();
-        
+
         if (!$cart || $cart->products->isEmpty()) {
             return response()->json(['message' => 'Cart is empty'], 400);
         }
@@ -36,18 +36,22 @@ class OrderController extends Controller
         $orderProductsStatus = OrderProductStatus::where('name', 'pending')->firstOrFail();
 
         foreach ($cart->products as $product) {
-            OrderProduct::create([
+            $orderProduct = OrderProduct::create([
                 'product_id' => $product->id,
                 'name' => $product->name,
                 'price' => $product->price,
                 'seller_id' => $product->seller_id,
-                'quantity' => $product->quantity,
+                'quantity' => $cart->products()->where('product_id', $product->id)->first()->pivot->quantity,
                 'popularity' => $product->popularity,
                 'order_product_status_id' => $orderProductsStatus->id,
             ]);
+
+            $order->orderProducts()->attach(
+                $orderProduct->id
+            );
         }
 
-        $cart->products()->delete();
+        $cart->products()->detach();
 
         return response()->json($order->load('orderProducts'), 201);
     }
