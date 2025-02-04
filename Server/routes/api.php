@@ -52,9 +52,9 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/roles/{id}', [RoleController::class, 'show']);
 });
 
-Route::get('/test', function () {
+/* Route::get('/test', function () {
     return 'Test route';
-})->middleware(['auth:sanctum', 'role:seller']);
+})->middleware(['auth:sanctum', 'role:seller']); */
 
 
 Route::middleware(['auth:sanctum', 'role:admin|order-manager|seller'])->group(function () {

@@ -14,11 +14,18 @@ class Order extends Model
         'status_id',
     ];
 
-    public function orderProducts(){
+    public function orderProducts()
+    {
         return $this->belongsToMany(OrderProduct::class, 'orders_order_products');
     }
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
+    }
+
+    public function status()
+    {
+        return $this->belongsTo(OrderStatus::class);
     }
 }

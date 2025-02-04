@@ -56,9 +56,9 @@ class OrderController extends Controller
         return response()->json($order->load('orderProducts'), 201);
     }
 
-    public function myOrders()
+    public function myOrders(Request $request)
     {
-        $user = Auth::user();
+        $user = $request->user();
         $orders = Order::where('user_id', $user->id)
             ->with(['orderProducts', 'status'])
             ->get();
@@ -72,7 +72,6 @@ class OrderController extends Controller
         $order = Order::where('user_id', $user->id)
             ->with(['orderProducts', 'status'])
             ->findOrFail($id);
-
         return response()->json($order);
     }
 
