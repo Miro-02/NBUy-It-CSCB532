@@ -1,21 +1,73 @@
 import LogoutButton from './LogoutButton';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router';
 import { useAuth } from '../auth/AuthContext';
 import UserImage from '../assets/user-picture.jpg';
+import axios from 'axios';
+import { ad } from 'react-router/dist/production/route-data-DuV3tXo2';
 
 function ProfileCard() {
-    const { user, isSeller } = useAuth();
+    const { user, isSeller, updateUser } = useAuth();
     const [isEditingUsername, setIsEditingUsername] = useState(false);
     const [newName, setNewName] = useState(user?.name || '');
 
     const [isEditingPhone, setIsEditingPhone] = useState(false);
-    const [newPhone, setNewPhone] = useState('');
+    const [newPhone, setNewPhone] = useState(user?.phone);
     const [isEditingAddress, setIsEditingAddress] = useState(false);
-    const [newAddress, setNewAddress] = useState('');
+    const [newAddress, setNewAddress] = useState(user?.address);
 
-    const handlePhoneChange = () => setIsEditingPhone(false);
-    const handleAddressChange = () => setIsEditingAddress(false);
+    const [phoneError, setPhoneError] = useState<string | null>(null);
+    const [addressError, setAddressError] = useState<string | null>(null);
+
+    const handlePhoneChange = async () => {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await axios.put(
+                `${import.meta.env.VITE_SERVER_URL}/api/user/contact-details`, 
+                { 
+                    phone: newPhone,
+                    address: user?.address
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            updateUser({ phone: newPhone });
+            setIsEditingPhone(false);
+        } catch (error) {
+            console.error('Error updating phone:', error);
+            setNewPhone(user?.phone || '');
+            setPhoneError('Failed to update phone number');
+        }
+    };
+
+    const handleAddressChange = async () => {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await axios.put(
+                `${import.meta.env.VITE_SERVER_URL}/api/user/contact-details`, 
+                { 
+                    address: newAddress,
+                    phone:  user?.phone
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            updateUser({ address: newAddress });
+            setIsEditingAddress(false);
+        } catch (error) {
+            console.error('Error updating address:', error);
+            setNewAddress(user?.address || '');
+            setAddressError('Failed to update address');
+        }
+    };
     
     const userRole = isSeller ? 'SELLER' : 'BUYER';
     
@@ -56,11 +108,12 @@ function ProfileCard() {
                             <div className="flex gap-2">
                                 <input
                                     type="tel"
-                                    value={newPhone}
+                                    value={newPhone ?? ''}
                                     onChange={(e) => setNewPhone(e.target.value)}
                                     className="w-full px-4 py-2 rounded-lg border-2 border-blue-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                                     autoFocus
                                 />
+                                {phoneError && <div className="text-red-500 text-sm mt-1">{phoneError}</div>}
                                 <button
                                     onClick={handlePhoneChange}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -102,13 +155,14 @@ function ProfileCard() {
                             <div className="flex gap-2">
                                 <input
                                     type="text"
-                                    value={newAddress}
+                                    value={newAddress ?? ''}
                                     onChange={(e) => setNewAddress(e.target.value)}
                                     className="w-full px-4 py-2 rounded-lg border-2 border-blue-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                                     autoFocus
                                 />
+                                {addressError && <div className="text-red-500 text-sm mt-1">{addressError}</div>}
                                 <button
-                                    onClick={handleAddressChange}
+                                    onClick={() =>handleAddressChange}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                                 >
                                     Save

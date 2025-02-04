@@ -82,7 +82,6 @@ export function AddProduct() {
     formData.append("description", data.description);
     formData.append("price", data.price.toString());
     formData.append("quantity", data.quantity.toString());
-    formData.append("seller_id", "1");
 
     data.categories.forEach(id => 
       formData.append("product_category_ids[]", id.toString())
