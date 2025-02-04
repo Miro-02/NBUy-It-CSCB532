@@ -111,14 +111,14 @@ function MyInventory() {
             />
             <h2 className="text-lg font-semibold">{product.name}</h2>
             <p className="text-sm text-gray-500">
-              Uploaded on: {new Date(product.created_at).toLocaleDateString()}
+              Posted on: {new Date(product.created_at).toLocaleDateString()}
             </p>
             <div className="mt-4 flex justify-between items-center">
               <Link
-                to={`/inventory/${product.id}`}
-                className="text-blue-500 hover:underline"
+                to={`/products/${product.id}/edit`}
+                className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold py-1 px-3 rounded"
               >
-                View Details
+                Edit
               </Link>
               <button
                 onClick={() => handleDelete(product.id)}

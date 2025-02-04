@@ -50,10 +50,10 @@ function ProductDetails() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const productResponse = await axios.get(`http://127.0.0.1:8000/api/products/${id}`);
+                const productResponse = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/products/${id}`);
                 setProduct(productResponse.data.data);
 
-                const categoriesResponse = await axios.get('http://127.0.0.1:8000/api/product-categories');
+                const categoriesResponse = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/product-categories`);
                 setCategories(categoriesResponse.data.data);
             } catch (err) {
                 setError(axios.isAxiosError(err) 
