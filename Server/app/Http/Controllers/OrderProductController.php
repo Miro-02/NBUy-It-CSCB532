@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\OrderProductRequest;
 use App\Http\Resources\OrderProductResource;
 use App\Models\OrderProduct;
+use App\Models\OrderProductStatus;
 use App\Services\OrderProductService;
 use Illuminate\Http\JsonResponse;
 
-class OrderProductController extends Controller
+class OrderProductController
 {
     protected $orderProductService;
 
@@ -44,5 +45,43 @@ class OrderProductController extends Controller
     {
         $this->orderProductService->delete($orderProduct);
         return response()->json(null, 204);
+    }
+
+    public function advanceStatus($id)
+    {
+        $product = OrderProduct::with(['status'])->findOrFail($id);
+
+        if (!$product) {
+            return response()->json(['error' => 'Order not found'], 404);
+        }
+
+        $currentStatus = $product->status->slug;
+
+        switch ($currentStatus) {
+            case 'pending':
+                $nextStatusSlug = 'confirmed';
+                break;
+            case 'confirmed':
+                $nextStatusSlug = 'processing';
+                break;
+            case 'processing':
+                $nextStatusSlug = 'shipped';
+                break;
+            case 'shipped':
+                $nextStatusSlug = 'delivered';
+                break;
+            case 'delivered':
+                return response()->json(['error' => 'Order is already delivered'], 400);
+            case 'denied':
+                return response()->json(['error' => 'Order is denied'], 400);
+            default:
+                return response()->json(['error' => 'Invalid order status'], 400);
+        }
+
+        $nextStatus = OrderProductStatus::where('slug', $nextStatusSlug)->firstOrFail();
+
+        $product->update(['status_id' => $nextStatus->id]);
+
+        return response()->json("Updated", 200);
     }
 }

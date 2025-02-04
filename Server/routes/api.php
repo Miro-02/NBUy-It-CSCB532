@@ -1,18 +1,14 @@
 <?php
 
-use App\Models\OrderProduct;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductCategoryController;
-use App\Http\Controllers\OrderStatusController;
-use App\Http\Controllers\OrderProductStatusController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AuthController;
-use Spatie\Permission\Middlewares\RoleMiddleware;
-
+use App\Http\Controllers\OrderProductController;
 use Spatie\Permission\Models\Role;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -41,7 +37,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/my-orders', [OrderController::class, 'myOrders']);
     Route::get('/my-orders/{id}', [OrderController::class, 'myOrder']);
 
-    Route::put('/user/contact-details', [UserController::class, 'updateContactDetails']);});
+    Route::put('/user/contact-details', [UserController::class, 'updateContactDetails']);
+});
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::post('/users', [UserController::class, 'store']);
@@ -53,11 +50,6 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/roles', [RoleController::class, 'index']);
     Route::get('/roles/{id}', [RoleController::class, 'show']);
 });
-
-/* Route::get('/test', function () {
-    return 'Test route';
-})->middleware(['auth:sanctum', 'role:seller']); */
-
 
 Route::middleware(['auth:sanctum', 'role:admin|order-manager|seller'])->group(function () {
     // ProductController routes
@@ -78,6 +70,6 @@ Route::middleware(['auth:sanctum', 'role:admin|order-manager|seller'])->group(fu
 Route::middleware(['auth:sanctum', 'role:admin|order-manager'])->group(function () {
     Route::get('/order', [OrderController::class, 'index']);
     Route::get('/order/{id}', [OrderController::class, 'show']);
-    /* Route::post('/order/{id}/advance-status', [OrderController::class, 'advanceStatus']);
-    Route::post('/order-product/{id}/advance-status', [OrderProductController::class, 'advanceStatus']); */
+    Route::post('/order/{id}/advance-status', [OrderController::class, 'advanceStatus']);
+    Route::post('/order-product/{id}/advance-status', [OrderProductController::class, 'advanceStatus']);
 });

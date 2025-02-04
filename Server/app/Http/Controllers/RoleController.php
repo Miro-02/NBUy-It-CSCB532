@@ -7,7 +7,7 @@ use App\Http\Resources\RoleResource;
 use App\Services\RoleService;
 use Illuminate\Http\Request;
 
-class RoleController extends Controller
+class RoleController
 {
     protected $roleService;
 
@@ -27,22 +27,4 @@ class RoleController extends Controller
         $role = $this->roleService->getById($id);
         return new RoleResource($role);
     }
-
-    /* public function store(RoleRequest $request)
-    {
-        $role = $this->roleService->create($request->validated());
-        return new RoleResource($role);
-    } */
-
-    /* public function update(RoleRequest $request, $id)
-    {
-        $role = $this->roleService->update($id, $request->validated());
-        return new RoleResource($role);
-    }
-
-    public function destroy($id)
-    {
-        $this->roleService->delete($id);
-        return response()->noContent();
-    } */
 }

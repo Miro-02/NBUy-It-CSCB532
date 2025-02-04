@@ -10,6 +10,4 @@ class OrderProductStatus extends Model
     use HasFactory;
 
     protected $fillable = ['name', 'slug'];
-
-    
 }

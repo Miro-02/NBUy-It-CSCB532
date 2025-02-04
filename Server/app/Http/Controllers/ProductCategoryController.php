@@ -7,7 +7,8 @@ use App\Http\Resources\ProductCategoryResource;
 use App\Services\ProductCategoryService;
 use Illuminate\Http\Request;
 
-class ProductCategoryController extends Controller
+class ProductCategoryController 
+
 {
     protected $productCategoryService;
 
