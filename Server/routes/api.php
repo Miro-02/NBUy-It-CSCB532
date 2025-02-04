@@ -22,6 +22,10 @@ Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::get('/product-categories', [ProductCategoryController::class, 'index']);
 Route::get('/product-categories/{id}', [ProductCategoryController::class, 'show']);
 
+Route::middleware(['auth:sanctum', 'role:buyer'])->group(function () {
+    Route::post('/become-seller', [UserController::class, 'becomeSeller']);
+});
+
 // Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
@@ -50,7 +54,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
 Route::get('/test', function () {
     return 'Test route';
-})->middleware(['auth:sanctum', 'role:buyer', 'role:seller', 'role:admin', 'role:order-manager']);
+})->middleware(['auth:sanctum', 'role:seller']);
 
 
 Route::middleware(['auth:sanctum', 'role:admin|order-manager|seller'])->group(function () {

@@ -44,4 +44,20 @@ class UserController extends Controller
         return response()->json(null, 200);
     }
 
+    public function becomeSeller(Request $request)
+    {
+        $user = $request->user();
+    
+        if ($user->hasRole('buyer')) {
+            $user->removeRole('buyer');
+            $user->assignRole('seller');
+            return response()->json([
+                'message' => 'User is now a seller.',
+                'user' => $user
+            ]);
+        }
+        return response()->json([
+            'message' => 'User already has a different role.',
+        ], 400);
+    }
 }
