@@ -13,9 +13,10 @@ import ScrollToTop from './components/ScrollToTop';
 import BecomeSeller from './pages/BecomeSeller';
 import SignUp from './pages/SignUp';
 import { AuthProvider, useAuth } from './auth/AuthContext';
+import Orders from './pages/Orders';
 
 function App() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isSeller } = useAuth();
 
   useEffect(() => {
     if (window.history?.scrollRestoration) {
@@ -63,7 +64,11 @@ function App() {
           />
           <Route
             path='/become-seller'
-            element={isAuthenticated ? <BecomeSeller /> : <Navigate to='/login' />}
+            element={isAuthenticated && !isSeller ? <BecomeSeller /> : <Navigate to='/login' />}
+          />
+          <Route
+            path='/orders'
+            element={isAuthenticated ? <Orders /> : <Navigate to='/login' />}
           />
           <Route 
             path='*' 

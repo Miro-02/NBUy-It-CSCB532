@@ -66,6 +66,13 @@ function Navbar() {
                                             >
                                                 My Profile
                                             </Link>
+                                            <Link
+                                                to="/orders"
+                                                onClick={() => setShowDropdown(false)}
+                                                className="block w-full px-2 py-1 text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                                            >
+                                                Orders
+                                            </Link>
                                             <button
                                                 onClick={() => {
                                                     logout();

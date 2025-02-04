@@ -1,9 +1,11 @@
+import axios from "axios";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 export default function BecomeSeller() {
   const [agreed, setAgreed] = useState(false);
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
+  const navigate = useNavigate();
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
@@ -11,9 +13,28 @@ export default function BecomeSeller() {
     setScrolledToBottom(bottom);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('I should implement POST request to the server so your role is changed!');
+
+    try {
+      const token = localStorage.getItem("authToken");
+      console.log(token);
+      const response = await axios.post(
+        `${import.meta.env.VITE_SERVER_URL}/api/become-seller`, {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        }
+      );
+      if(response.status === 200) {
+        console.log("You are a seller now!");
+        navigate("/");
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   return (

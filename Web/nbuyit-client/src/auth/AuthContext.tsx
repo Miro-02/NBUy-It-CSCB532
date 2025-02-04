@@ -13,12 +13,14 @@ export interface User {
     cart_id: number | null;
     age: number | null;
     address: string | null;
+    roles: Array<{ name: string }>;
 }
 
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
     isLoading: boolean; 
+    isSeller: boolean;
     logout: () => void;
     login: (token: string) => Promise<void>;
 }
@@ -27,6 +29,7 @@ const AuthContext = createContext<AuthContextType>({
     user: null,
     isAuthenticated: false,
     isLoading: true,
+    isSeller: false,
     logout: () => {},
     login: async () => {},
 });
@@ -58,7 +61,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 },
             });
 
-            setUser(response.data);
+            const userData: User = {
+                ...response.data,
+                roles: response.data.roles.map(role => ({ name: role.name }))
+            };
+
+            setUser(userData);
             setIsAuthenticated(true);
             if (!token) localStorage.setItem('authToken', authToken);
         } catch (error) {
@@ -85,11 +93,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsAuthenticated(false);
     };
 
+    const isSeller = user?.roles.some(role => role.name === 'seller') ?? false;
+
     return (
        <AuthContext.Provider value={{ 
         user, 
         isAuthenticated, 
         isLoading,
+        isSeller,
         logout,
         login
         }}>

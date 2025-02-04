@@ -3,6 +3,7 @@ import axios from "axios";
 import ProductCard from "../components/ProductCard";
 import FloatingAddButton from "../components/FloatingAddButton";
 import SellerButton from "../components/SellerButton";
+import { useAuth } from "../auth/AuthContext";
 
 function Home() {
   const [products, setProducts] = useState<any[]>([]);
@@ -11,6 +12,7 @@ function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>([]);
   const [sortType, setSortType] = useState<'price_asc' | 'price_desc' | 'popularity' | 'none'>('none');
+  const { isSeller } = useAuth();
 
   useEffect(() => {
     axios
@@ -74,7 +76,7 @@ function Home() {
                 ({products.length} items)
               </span>
             </h1>
-            <SellerButton />
+            {!isSeller && <SellerButton />}
           </div>
         </div>
       </header>
@@ -168,7 +170,7 @@ function Home() {
         )}
       </main>
 
-      <FloatingAddButton />
+      {isSeller && <FloatingAddButton />}
     </div>
   );
 }

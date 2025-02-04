@@ -1,10 +1,11 @@
 interface AddToCartButtonProps {
+  className?: string;
   onClick: (e: React.MouseEvent) => Promise<void>;
 }
 
-export default function AddToCartButton({ onClick }: AddToCartButtonProps) {
+export default function AddToCartButton({ className, onClick }: AddToCartButtonProps) {
     return (
-      <button className="flex items-center space-x-2 rounded-lg bg-[#093f87] px-4 py-2 text-white hover:bg-[#082f6a] transition-colors duration-200">
+      <button onClick={onClick} className="flex items-center space-x-2 rounded-lg bg-[#093f87] px-4 py-2 text-white hover:bg-[#082f6a] transition-colors duration-200">
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
           fill="none" 

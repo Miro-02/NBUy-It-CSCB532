@@ -95,6 +95,7 @@ export function AddProduct() {
     axios.post(`${import.meta.env.VITE_SERVER_URL}/api/products`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
       },
     })
     .then(response => {

@@ -15,12 +15,36 @@ function ProductDetails() {
         setActiveImageIndex(prev => 
           prev === 0 ? product.product_images.length - 1 : prev - 1
         );
-      };
+    };
     
-      const goToNext = () => {
+    const goToNext = () => {
         setActiveImageIndex(prev => 
-          prev === product.product_images.length - 1 ? 0 : prev + 1
+            prev === product.product_images.length - 1 ? 0 : prev + 1
         );
+    };
+
+    const handleAddToCart = async (e: React.MouseEvent) => {    
+        e.preventDefault();
+        e.stopPropagation();
+    
+        try {
+          const token = localStorage.getItem("authToken");
+          await axios.post(
+            `${import.meta.env.VITE_SERVER_URL}/api/cart`,
+            {
+              product_id: product.id,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Access-Control-Allow-Credentials': true,
+              },
+            }
+          );
+          console.log("Product added to cart!");
+        } catch (error) {
+          console.error("Error adding to cart:", error);
+        }
       };
 
     useEffect(() => {
@@ -206,7 +230,9 @@ function ProductDetails() {
                             </div>
 
                             <div className="flex items-center space-x-4">
-                                <button className="flex items-center space-x-2 rounded-lg bg-[#093f87] px-6 py-3 text-white hover:bg-[#082f6a] transition-colors duration-200">
+                                <button 
+                                onClick={handleAddToCart}
+                                className="flex items-center space-x-2 rounded-lg bg-[#093f87] px-6 py-3 text-white hover:bg-[#082f6a] transition-colors duration-200">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         fill="none"

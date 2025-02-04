@@ -5,7 +5,7 @@ import { useAuth } from '../auth/AuthContext';
 import UserImage from '../assets/user-picture.jpg';
 
 function ProfileCard() {
-    const { user } = useAuth();
+    const { user, isSeller } = useAuth();
     const [isEditingUsername, setIsEditingUsername] = useState(false);
     const [newName, setNewName] = useState(user?.name || '');
 
@@ -17,9 +17,8 @@ function ProfileCard() {
     const handlePhoneChange = () => setIsEditingPhone(false);
     const handleAddressChange = () => setIsEditingAddress(false);
     
-    const [userRole] = useState<'SELLER' | 'BUYER'>('SELLER');
-
-
+    const userRole = isSeller ? 'SELLER' : 'BUYER';
+    
     return (
         <div className="bg-white rounded-xl p-8 shadow-lg w-96 space-y-6 border border-gray-100 relative">
             <div className="flex flex-col items-center space-y-4">

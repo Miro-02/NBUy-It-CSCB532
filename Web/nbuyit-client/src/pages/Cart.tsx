@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { CartItem } from '../components/CartItem';
 import { CheckoutCard } from '../components/CheckoutCard';
 import axios from 'axios';
+import { Link } from 'react-router';
 
 interface CartItemType {
     id: number;
     name: string;
     price: string;
     quantity: number;
-    image: string;
+    product_images: Object[];
 }
 
 function Cart() {
@@ -20,15 +21,19 @@ function Cart() {
         const fetchCart = async () => {
         try {
             const token = localStorage.getItem('authToken');
-            const response = await axios.get('/api/cart', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
+            const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/cart`, 
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
             });
-            setCartItems(response.data);
+            const receivedData = response.data.data?.products;
+            const itemsArray = Array.isArray(receivedData) ? receivedData : [];
+            setCartItems(itemsArray);
         } catch (error) {
             setError('Failed to load cart');
             console.error('Error fetching cart:', error);
+            setCartItems([]); 
         } finally {
             setLoading(false);
         }
@@ -39,19 +44,19 @@ function Cart() {
     const updateQuantity = async (itemId: number, newQuantity: number) => {
         try {
             const token = localStorage.getItem('authToken');
-            await axios.put(`/api/cart/${itemId}`, {
-              quantity: newQuantity
-            }, {
+            const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/cart/`, 
+            {
+                product_id: itemId,
+                quantity: newQuantity,
+            },
+            {
             headers: {
                 Authorization: `Bearer ${token}`,
                 }
             });
       
-            setCartItems(prevItems =>
-                prevItems.map(item =>
-                    item.id === itemId ? { ...item, quantity: newQuantity } : item
-                )
-            );
+            setCartItems(Array.isArray(response.data.data?.products) ? response.data.data?.products : []);
+            console.log('Cart Items:', cartItems);
         } catch (error) {
             console.error('Error updating quantity:', error);
         }
@@ -72,7 +77,8 @@ function Cart() {
     const handleRemove = async (itemId: number) => {
         try {
           const token = localStorage.getItem('authToken');
-          await axios.delete(`/api/cart/${itemId}`, {
+          await axios.delete(`${import.meta.env.VITE_SERVER_URL}/api/cart/${itemId}`, 
+            {
             headers: {
               Authorization: `Bearer ${token}`,
             }
@@ -84,9 +90,11 @@ function Cart() {
     };
 
     const calculateAmounts = () => {
-        const subtotal = cartItems.reduce((sum, item) => {
-            const price = Number(item.price.replace(' лв.', '').replace(',', '.'));
-            return sum + (price * item.quantity);
+        const items = Array.isArray(cartItems) ? cartItems : [];
+        const subtotal = items.reduce((sum, item) => {
+        const priceString = item?.price || '0';
+        const price = Number(priceString.replace(/[^0-9.,]/g, '').replace(',', '.'));    
+        return sum + (isNaN(price) ? 0 : price * (item.quantity || 0));
         }, 0);
         
         const taxes = subtotal * 0.20;
@@ -102,7 +110,7 @@ function Cart() {
             subtotal: formatter.format(subtotal),
             taxes: formatter.format(taxes),
             total: formatter.format(total),
-            totalItems: cartItems.reduce((sum, item) => sum + item.quantity, 0)
+            totalItems: items.reduce((sum, item) => sum + item.quantity || 0, 0)
         };
     };
 
@@ -110,18 +118,29 @@ function Cart() {
 
     return (
         <div className="min-h-screen bg-gray-50 py-8">
-            
             {loading && <div className="text-center">Loading cart...</div>}
             {error && <div className="text-red-500 text-center">{error}</div>}
 
             {!loading && !error && (
             <div className="container mx-auto px-4">
                 <h1 className="text-4xl font-bold text-[#093f87] mb-8">Your Cart</h1>
-                
-                <div className="grid lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2 space-y-4">
-                    {
-                        cartItems.map(item => (
+
+                {Array.isArray(cartItems) && cartItems.length === 0 ? (
+                    <div className="text-center py-12">
+                        <div className="text-2xl text-gray-600 mb-4">
+                            Your cart is empty 🛒
+                        </div>
+                        <Link 
+                            to="/" 
+                            className="text-[#093f87] hover:text-blue-700 font-medium"
+                        >
+                            Browse Products →
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="grid lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2 space-y-4">
+                        {Array.isArray(cartItems) && cartItems.map(item => (
                             <CartItem
                                 key={item.id}
                                 {...item}
@@ -129,17 +148,17 @@ function Cart() {
                                 onDecrement={handleDecrement}
                                 onRemove={handleRemove}
                             />
-                        ))
-                    }
+                        ))}
+                        </div>
+                        
+                        <CheckoutCard
+                            items={totalItems}
+                            subtotal={subtotal}
+                            taxes={taxes}
+                            total={total}
+                        />
                     </div>
-                    
-                    <CheckoutCard
-                        items={totalItems}
-                        subtotal={subtotal}
-                        taxes={taxes}
-                        total={total}
-                    />
-                </div>
+                )}
             </div>
             )}
         </div>
